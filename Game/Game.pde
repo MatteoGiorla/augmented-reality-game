@@ -2,6 +2,10 @@ float depth = 2000;
 float speed = 1.0;
 float rxSaved = 0.0;
 float rzSaved = 0.0;
+float mouseXSaved = 0.0;
+float mouseYSaved = 0.0;
+float rxImmobile = 0.0;
+float rzImmobile = 0.0;
 
 void settings() {
   size(1000, 700, P3D);
@@ -34,17 +38,35 @@ void draw() {
     } else {
       mouseXmapped=mouseX;
     }
-    
-    float rx = map(mouseXmapped, 0, width, (-PI/3), PI/3)*speed;
-    float rz = map(mouseYmapped, 0, height, (-PI/3), PI/3)*speed;
+
+    float rx = map(mouseXmapped - mouseXSaved + width/2, 0, width, (-PI/3), PI/3)*speed;
+    float rz = map(mouseYmapped - mouseYSaved + height/2, 0, height, (-PI/3), PI/3)*speed;
     rotateX(rx);
     rotateZ(rz);
     rxSaved = rx;
     rzSaved = rz;
+    /*
+    if(rxSaved > PI/3){
+      rxSaved=PI/3;
+    }
+    else if(rxSaved < -PI/3){
+      rxSaved = -PI/3;
+    }
+    if(rzSaved > PI/3){
+      rzSaved=PI/3;
+    }
+    else if(rzSaved < -PI/3){
+      rzSaved = -PI/3;
+    }
+    */
+    rxImmobile = rxSaved;
+    rzImmobile = rzSaved;
   }
   else{
-    rotateX(rxSaved);
-    rotateZ(rzSaved);
+    mouseXSaved = mouseX;
+    mouseYSaved = mouseY;
+    rotateX(rxImmobile);
+    rotateZ(rzImmobile);
   }
   box(1000, 50, 1000);
 }
