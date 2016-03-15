@@ -1,11 +1,14 @@
-float depth = 2000;
-float speed = 1.0;
-float rxSaved = 0.0;
-float rzSaved = 0.0;
-float mouseXSaved = 0.0;
-float mouseYSaved = 0.0;
-float rxImmobile = 0.0;
-float rzImmobile = 0.0;
+
+//variables globales du programme
+//pourraient peut être 'etre déclarées dans le draw directement ? (Certaines en tout cas)
+static float depth = 2000;
+static float speed = 1.0;
+static float rxSaved = 0.0;
+static float rzSaved = 0.0;
+static float mouseXSaved = 0.0;
+static float mouseYSaved = 0.0;
+static float rxImmobile = 0.0;
+static float rzImmobile = 0.0;
 
 void settings() {
   size(1000, 700, P3D);
@@ -21,6 +24,8 @@ void draw() {
   directionalLight(50, 100, 125, 0, -1, 0);
   ambientLight(102, 102, 102);
   translate(width/2, height/2, 0);
+  
+  //peut être modularisé ce bout de code dans une fonctions pour améliorer la lisibilité ? A voir...
   if (mousePressed == true) {
     float mouseXmapped = bound(mouseX, 0, width);
     float mouseYmapped = bound(mouseY, 0, height);
@@ -31,7 +36,6 @@ void draw() {
     rotateX(rxSaved);
     rotateZ(rzSaved);
   } else {
-        
     rxImmobile = rxSaved;
     rzImmobile = rzSaved;
     mouseXSaved = mouseX;
@@ -48,6 +52,7 @@ void mouseWheel(MouseEvent event) {
   speed = bound(wheelCount, 0.2, 1.5);
 }
 
+// méthode qui retourne le premier float donné en argument déléimité par deux limites également en float.
 float bound(float toBound, float lowerBound, float upperBound) {
   if (toBound > upperBound) {
     return upperBound;
@@ -58,6 +63,7 @@ float bound(float toBound, float lowerBound, float upperBound) {
   }
 }
 
+//simple méthode permettant de déterminer quand est pressée la souris.
 void keyPressed() {
   if (key == CODED) {
     if (keyCode == UP) {
