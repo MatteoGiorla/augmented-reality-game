@@ -1,7 +1,7 @@
 float depth = 2000;
 float speed = 1.0;
-float rxSaved = 0.0;
-float rzSaved = 0.0;
+float angleX = 0.0;
+float angleZ = 0.0;
 float mouseXSaved = 0.0;
 float mouseYSaved = 0.0;
 float rxImmobile = 0.0;
@@ -17,6 +17,8 @@ void setup () {
 
 void draw() {
   background(200);
+  textSize(40);
+  text("Angle x : " + Math.toDegrees(angleX) + "°  Angle Z : " + Math.toDegrees(angleZ) + "°  Speed : " + speed, 20, 20);
   camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
   directionalLight(50, 100, 125, 0, -1, 0);
   ambientLight(102, 102, 102);
@@ -26,14 +28,14 @@ void draw() {
     float mouseYmapped = bound(mouseY, 0, height);
     float rz = map(mouseXmapped - bound(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
     float rx = map(mouseYmapped - bound(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
-    rxSaved = bound(rx + rxImmobile, -PI/3, PI/3);
-    rzSaved = bound(rz + rzImmobile, -PI/3, PI/3);
-    rotateX(rxSaved);
-    rotateZ(rzSaved);
+    angleX = bound(rx + rxImmobile, -PI/3, PI/3);
+    angleZ = bound(rz + rzImmobile, -PI/3, PI/3);
+    rotateX(angleX);
+    rotateZ(angleZ);
   } else {
         
-    rxImmobile = rxSaved;
-    rzImmobile = rzSaved;
+    rxImmobile = angleX;
+    rzImmobile = angleZ;
     mouseXSaved = mouseX;
     mouseYSaved = mouseY;
     rotateX(rxImmobile);
@@ -43,9 +45,9 @@ void draw() {
 }
 
 void mouseWheel(MouseEvent event) {
-  float wheelCount;
-  wheelCount = event.getCount();
+  float wheelCount = event.getCount();
   speed = bound(wheelCount, 0.2, 1.5);
+
 }
 
 float bound(float toBound, float lowerBound, float upperBound) {
