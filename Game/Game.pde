@@ -23,12 +23,19 @@ void draw() {
   background(200);
   if (mousePressed == true) {
     //probleme que c'est dnas le coin en haut a gauche, problene de detection ou on fout cette souris
-    float mouseXmapped = bound(mouseY, 0, height);
-    float mouseYmapped = bound(mouseX, 0, width);
-    float rx = map((mouseXmapped - bound(mouseXSaved, 0, width) + width/2)*speed, 0, width, (-PI/3), PI/3);
-    float rz = map((mouseYmapped - bound(mouseYSaved, 0, height) + height/2)*speed, 0, height, (-PI/3), PI/3);
-    rxSaved = rx + rxImmobile;
-    rzSaved= rz + rzImmobile;
+    float mouseXmapped = bound(mouseX, 0, width);
+    float mouseYmapped = bound(mouseY, 0, height);
+    println("X :" + (mouseXmapped - bound(mouseXSaved, 0, width)));
+    println("Y :" + (mouseYmapped - bound(mouseYSaved, 0, height)));
+    println("Mouse X : " + mouseXmapped);
+    println("Mouse Y : " + mouseYmapped);
+    println("Mouse X SAVED : " + mouseXSaved);
+    println("Mouse Y SAVED : " + mouseYSaved);
+
+    float rz = map(mouseXmapped - bound(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
+    float rx = map(mouseYmapped - bound(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
+    rxSaved = bound(rx + rxImmobile, -PI/3, PI/3);
+    rzSaved= bound(rz + rzImmobile, -PI/3, PI/3);
     rotateX(rxSaved);
     rotateZ(rzSaved);
   } else {
