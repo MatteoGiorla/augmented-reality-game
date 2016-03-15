@@ -22,47 +22,18 @@ void draw() {
   translate(width/2, height/2, 0);
   background(200);
   if (mousePressed == true) {
-    float mouseXmapped;
-    float mouseYmapped;
-    if (mouseY > height) {
-      mouseYmapped = height;
-    } else if (mouseY<0) {
-      mouseYmapped = 0;
-    } else {
-      mouseYmapped=mouseY;
-    }
-    if (mouseX > width) {
-      mouseXmapped = width;
-    } else if (mouseX<0) {
-      mouseXmapped = 0;
-    } else {
-      mouseXmapped=mouseX;
-    }
-
-    float rx = map(mouseXmapped - mouseXSaved + width/2, 0, width, (-PI/3), PI/3)*speed;
-    float rz = map(mouseYmapped - mouseYSaved + height/2, 0, height, (-PI/3), PI/3)*speed;
-    rotateX(rx);
-    rotateZ(rz);
-    rxSaved = rx;
-    rzSaved = rz;
-    /*
-    if(rxSaved > PI/3){
-      rxSaved=PI/3;
-    }
-    else if(rxSaved < -PI/3){
-      rxSaved = -PI/3;
-    }
-    if(rzSaved > PI/3){
-      rzSaved=PI/3;
-    }
-    else if(rzSaved < -PI/3){
-      rzSaved = -PI/3;
-    }
-    */
+    //probleme que c'est dnas le coin en haut a gauche, problene de detection ou on fout cette souris
+    float mouseXmapped = bound(mouseY, 0, height);
+    float mouseYmapped = bound(mouseX, 0, width);
+    float rx = map((mouseXmapped - bound(mouseXSaved, 0, width) + width/2)*speed, 0, width, (-PI/3), PI/3);
+    float rz = map((mouseYmapped - bound(mouseYSaved, 0, height) + height/2)*speed, 0, height, (-PI/3), PI/3);
+    rxSaved = rx + rxImmobile;
+    rzSaved= rz + rzImmobile;
+    rotateX(rxSaved);
+    rotateZ(rzSaved);
+  } else {
     rxImmobile = rxSaved;
     rzImmobile = rzSaved;
-  }
-  else{
     mouseXSaved = mouseX;
     mouseYSaved = mouseY;
     rotateX(rxImmobile);
@@ -74,23 +45,17 @@ void draw() {
 void mouseWheel(MouseEvent event) {
   float wheelCount;
   wheelCount = event.getCount();
-  if (wheelCount>1.5) {
-    speed = 1.5;
-  } else if (wheelCount <0.2) {
-    speed = 0.2;
-  } else {
-    speed = wheelCount;
-  }
+  speed = bound(wheelCount, 0.2, 1.5);
 }
 
-float bound(float toBound, float lowerBound, float upperBound){
-	if(toBound > upperBound){
-		return upperBound;
-	}else if(toBound < lowerBound){
-		return lowerBound;
-	}else{
-		return toBound;
-	}
+float bound(float toBound, float lowerBound, float upperBound) {
+  if (toBound > upperBound) {
+    return upperBound;
+  } else if (toBound < lowerBound) {
+    return lowerBound;
+  } else {
+    return toBound;
+  }
 }
 
 void keyPressed() {
