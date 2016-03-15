@@ -26,6 +26,16 @@ float mouseWheel(MouseEvent event) {
   return e;
 }
 
+float bound(float toBound, float lowerBound, float upperBound){
+	if(toBound > upperBound){
+		return upperBound;
+	}else if(toBound < lowerBound){
+		return lowerBound;
+	}else{
+		return toBound;
+	}
+}
+
 void keyPressed() {
   if (key == CODED) {
     if (keyCode == UP) {
