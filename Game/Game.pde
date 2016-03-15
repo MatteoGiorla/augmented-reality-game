@@ -24,12 +24,12 @@ static float speed = 1.0;
 static final float boxWidth = 1000; // valeur qui sé'tend sur l'axe des x
 static final float boxThick =  50; // valeur qui s'étend sur l'axe des y
 static final float boxHeight = 1000; // valeur qui s'étend sur l'axe des z
-static final  float sphereR = 100;
+static final  float ballRadius = 100;
 
 //variables relatives à la balle.
 static PVector gravityForce = new PVector(0, 0, 0);
 static PVector velocity = new PVector(0, 0, 0);
-static PVector location = new PVector(0, -(sphereR + boxThick/2) , 0); // location debase pour que la sphère soit sur le plateau.
+static PVector location = new PVector(0, -(ballRadius + boxThick/2) , 0); // location de base pour que la sphère soit sur le plateau.
 
 void settings() {
   size(1000, 700, P3D);
@@ -69,7 +69,7 @@ void draw() {
   }
   box(boxWidth, boxThick, boxHeight);
   translate(location.x, location.y, location.z); 
-  sphere(sphereR);
+  sphere(ballRadius);
 
   //friction
   PVector friction = velocity.copy();
@@ -83,7 +83,10 @@ void draw() {
 
   velocity.add(friction);
   velocity.add(gravityForce);
+  checkXEdges(location, velocity);
+  checkZEdges(location, velocity);
   location.add(velocity);
+  
 }
 
 void mouseWheel(MouseEvent event) {
@@ -91,10 +94,16 @@ void mouseWheel(MouseEvent event) {
   speed = bound(wheelCount, 0.2, 1.5);
 }
 
-void checkXEdges(){
+void checkXEdges(PVector loca, PVector velo){
+  if(loca.x + ballRadius > boxWidth/2 || loca.x - ballRadius < -boxWidth/2){
+       velo.x = -velo.x;
+  }
 }
 
-void checkZEdges(){
+void checkZEdges(PVector loca, PVector velo){
+  if(loca.z + ballRadius > boxHeight/2 || loca.z - ballRadius < -boxHeight/2){
+       velo.z = -velo.z;
+  }
 }
 
 // méthode qui retourne le premier float donné en argument déléimité par deux limites également en float.
