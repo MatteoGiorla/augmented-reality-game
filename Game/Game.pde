@@ -40,7 +40,7 @@ void setup () {
 }
 
 void draw() {
-  background(200);
+  background(235);
   textSize(40);
   text("Angle x : " + Math.toDegrees(angleX) + "°  Angle Z : " + Math.toDegrees(angleZ) + "°  Speed : " + speed, 20, 20);
   camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
