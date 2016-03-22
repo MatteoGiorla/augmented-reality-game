@@ -91,8 +91,7 @@ void draw() {
 
 void mouseWheel(MouseEvent event) {
   float wheelCount = event.getCount();
-  println(wheelCount);
-  speed = bound(wheelCount, 0.2, 1.5);
+  speed = bound(speed * map(wheelCount*30,-100, 100, 0.2, 1.5), 0.2, 1.5);
 }
 
 void checkXEdges(PVector loca, PVector velo){
