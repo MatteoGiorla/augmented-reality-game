@@ -21,10 +21,10 @@ static float rzImmobile = 0.0;
 static float angleX = 0.0;
 static float angleZ = 0.0;
 static float speed = 1.0;
-static final float boxWidth = 1000; // valeur qui sé'tend sur l'axe des x
+static final float boxWidth = 1500; // valeur qui sé'tend sur l'axe des x
 static final float boxThick =  50; // valeur qui s'étend sur l'axe des y
-static final float boxHeight = 1000; // valeur qui s'étend sur l'axe des z
-static final  float ballRadius = 100;
+static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
+static final  float ballRadius = 50;
 
 //variables relatives à la balle.
 static PVector gravityForce = new PVector(0, 0, 0);
@@ -32,7 +32,7 @@ static PVector velocity = new PVector(0, 0, 0);
 static PVector location = new PVector(0, -(ballRadius + boxThick/2) , 0); // location de base pour que la sphère soit sur le plateau.
 
 void settings() {
-  size(1000, 700, P3D);
+  size(1250, 700, P3D);
 }
 
 void setup () {
@@ -44,7 +44,7 @@ void draw() {
   textSize(40);
   text("Angle x : " + Math.toDegrees(angleX) + "°  Angle Z : " + Math.toDegrees(angleZ) + "°  Speed : " + speed, 20, 20);
   camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
-  directionalLight(50, 100, 125, 0, -1, 0);
+  directionalLight(50, 100, 125, 0, 1, 0);
   ambientLight(102, 102, 102);
   translate(width/2, height/2, 0);
 
@@ -56,7 +56,7 @@ void draw() {
     float rx = map(mouseYmapped - bound(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
     angleX = bound(rx + rxImmobile, -PI/3, PI/3);
     angleZ = bound(rz + rzImmobile, -PI/3, PI/3);
-    rotateX(angleX);
+    rotateX(-angleX);
     rotateZ(angleZ);
   } else {        
     rxImmobile = angleX;
@@ -64,7 +64,7 @@ void draw() {
 
     mouseXSaved = mouseX;
     mouseYSaved = mouseY;
-    rotateX(rxImmobile);
+    rotateX(-rxImmobile);
     rotateZ(rzImmobile);
   }
   box(boxWidth, boxThick, boxHeight);
@@ -79,7 +79,7 @@ void draw() {
 
   //gravity
   gravityForce.x = sin(angleZ) * gravityConstant;
-  gravityForce.z = -sin(angleX) * gravityConstant;
+  gravityForce.z = sin(angleX) * gravityConstant;
 
   velocity.add(friction);
   velocity.add(gravityForce);
@@ -91,6 +91,7 @@ void draw() {
 
 void mouseWheel(MouseEvent event) {
   float wheelCount = event.getCount();
+  println(wheelCount);
   speed = bound(wheelCount, 0.2, 1.5);
 }
 
