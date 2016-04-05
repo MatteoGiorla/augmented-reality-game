@@ -37,12 +37,60 @@ static PVector location = new PVector(0, -(ballRadius + boxThick/2) , 0); // pos
 //variables relatives au SHIFT
 static boolean shiftKeyPressed = false;
 
+//variables relatives au cylindre
+static float cylinderBaseSize = 100;
+static float cylinderHeight = 70;
+static int cylinderResolution = 40;
+static PShape cylinder = new PShape();
+
 void settings() {
   size(windowHeight, windowWidth, P3D);
 }
 
 void setup () {
-  noStroke();
+  // création d'un cylindre (cylinder)
+  float angle;
+  float[] x = new float[cylinderResolution + 1];
+  float[] y = new float[cylinderResolution + 1];
+  //get the x and y position on a circle for all the sides
+  for(int i = 0; i < x.length; i++) {
+    angle = (TWO_PI / cylinderResolution) * i;
+    x[i] = sin(angle) * cylinderBaseSize;
+    y[i] = cos(angle) * cylinderBaseSize;
+   }
+   cylinder = createShape();
+   cylinder.beginShape(TRIANGLE);
+   //dessine le "couvercle"
+   for(int a = 0; a < x.length; a++){
+     cylinder.vertex(x[a], y[a], cylinderHeight);
+     if(a + 1 >= x.length){
+       cylinder.vertex(x[0], y[0], cylinderHeight);
+     } else {
+       cylinder.vertex(x[a+1], y[a+1], cylinderHeight); 
+     }
+     cylinder.vertex(0, 0, cylinderHeight); 
+   }
+   //dessine le "bottom"
+   for(int b = 0; b < x.length; b++){
+     cylinder.vertex(x[b], y[b], 0);
+     if(b + 1 >= x.length){
+       cylinder.vertex(x[0], y[0], 0);
+     } else {
+       cylinder.vertex(x[b+1], y[b+1], 0); 
+     }
+       cylinder.vertex(0, 0, 0); 
+     }
+     //cylinder.endShape();
+      
+     //cylinder.beginShape(QUAD_STRIP);
+     //draw the border of the cylinder
+     for(int c = 0; c < x.length; c++) {
+       cylinder.vertex(x[c], y[c] , 0);
+       cylinder.vertex(x[c], y[c], cylinderHeight);
+     }
+     cylinder.endShape();
+        
+      noStroke();
 }
 
 void draw() {
@@ -97,7 +145,6 @@ void draw() {
   }
   
   //SHIFT
-
   else if(shiftKeyPressed) {
     float rectCornerX = width/2 - boxWidth/2;
     float rectCornerY = height/2 - boxHeight/2;
@@ -105,6 +152,10 @@ void draw() {
     rect(rectCornerX, rectCornerY, boxWidth, boxHeight);
     fill(0);
     ellipse(width/2 + location.x, height/2 + location.z, 2*ballRadius, 2*ballRadius);
+    translate(mouseX, mouseY, 0);
+    cylinder.setFill(color(255,204,0));
+    shape(cylinder);
+    
   }
 }
 
@@ -156,4 +207,11 @@ void keyPressed() {
 void keyReleased() {
    shiftKeyPressed = false;
  
+}
+
+void mouseReleased() {
+  if(shiftKeyPressed){
+    // trouver un moyen "d'accrocher un cylindre"
+    
+}
 }

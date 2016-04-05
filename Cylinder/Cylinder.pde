@@ -19,9 +19,9 @@
       openCylinder = createShape();
         openCylinder.beginShape(TRIANGLE);
         //dessine le "couvercle"
-        for(int a = 0; a < x.length; i++){
+        for(int a = 0; a < x.length; a++){
           openCylinder.vertex(x[a], y[a], cylinderHeight);
-          if(i + 1 >= x.length){
+          if(a + 1 >= x.length){
             openCylinder.vertex(x[0], y[0], cylinderHeight);
           } else {
           openCylinder.vertex(x[a+1], y[a+1], cylinderHeight); 
@@ -31,24 +31,24 @@
         //dessine le "bottom"
         for(int b = 0; b < x.length; b++){
           openCylinder.vertex(x[b], y[b], 0);
-          if(i + 1 >= x.length){
+          if(b + 1 >= x.length){
             openCylinder.vertex(x[0], y[0], 0);
           } else {
           openCylinder.vertex(x[b+1], y[b+1], 0); 
           }
           openCylinder.vertex(0, 0, 0); 
         }
-      openCylinder.endShape();
+      //openCylinder.endShape();
       
-      /*openCylinder.beginShape(QUAD_STRIP);
+      //openCylinder.beginShape(QUAD_STRIP);
         //draw the border of the cylinder
         for(int c = 0; c < x.length; c++) {
           openCylinder.vertex(x[c], y[c] , 0);
           openCylinder.vertex(x[c], y[c], cylinderHeight);
         }
         openCylinder.endShape();
-      }*/
-}
+      }
+
     void draw() {
         background(255);
         translate(mouseX, mouseY, 0); 
