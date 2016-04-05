@@ -74,6 +74,7 @@ void draw() {
       rotateX(-rxImmobile);
       rotateZ(rzImmobile);
     }
+    fill(255);
     box(boxWidth, boxThick, boxHeight);
     translate(location.x, location.y, location.z); 
     sphere(ballRadius);
@@ -100,10 +101,10 @@ void draw() {
   else if(shiftKeyPressed) {
     float rectCornerX = width/2 - boxWidth/2;
     float rectCornerY = height/2 - boxHeight/2;
+    fill(125);
     rect(rectCornerX, rectCornerY, boxWidth, boxHeight);
     fill(0);
-    ellipse(width/2 + location.x, height/2 + location.z, ballRadius, ballRadius);
-    noFill();    
+    ellipse(width/2 + location.x, height/2 + location.z, 2*ballRadius, 2*ballRadius);
   }
 }
 
