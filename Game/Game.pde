@@ -63,19 +63,8 @@ void setup () {
   }
   cylinder = createShape();
   cylinder.beginShape(TRIANGLE);
-  //dessine le "couvercle"
-  /*if(shiftKeyPressed) {
-    for (int a = 0; a < x.length; a++) {
-    cylinder.vertex(x[a], y[a], cylinderHeight);
-    if (a + 1 >= x.length) {
-      cylinder.vertex(x[0], y[0], cylinderHeight);
-    } else {
-      cylinder.vertex(x[a+1], y[a+1], cylinderHeight);
-    }
-    cylinder.vertex(0, 0, cylinderHeight);
-  }
-  } else {*/
-    for (int a = 0; a < x.length; a++) {
+
+  for (int a = 0; a < x.length; a++) {
     cylinder.vertex(x[a], cylinderHeight, y[a]);
     if (a + 1 >= x.length) {
       cylinder.vertex(x[0], cylinderHeight, y[0]);
@@ -84,21 +73,8 @@ void setup () {
     }
     cylinder.vertex(0, cylinderHeight, 0);
   }
-  //}
-  
-  //dessine le "bottom"
-  /*if(shiftKeyPressed) {
-   for (int b = 0; b < x.length; b++) {
-    cylinder.vertex(x[b], y[b], 0);
-    if (b + 1 >= x.length) {
-      cylinder.vertex(x[0], y[0], 0);
-    } else {
-      cylinder.vertex(x[b+1], y[b+1], 0);
-    }
-    cylinder.vertex(0, 0, 0);
-  } 
-  } else {*/
-    for (int b = 0; b < x.length; b++) {
+
+  for (int b = 0; b < x.length; b++) {
     cylinder.vertex(x[b], 0, y[b]);
     if (b + 1 >= x.length) {
       cylinder.vertex(x[0], 0, y[0]);
@@ -106,33 +82,21 @@ void setup () {
       cylinder.vertex(x[b+1], 0, y[b+1]);
     }
     cylinder.vertex(0, 0, 0);
-  //}
   }
-  
-  //cylinder.endShape();
 
-  //cylinder.beginShape(QUAD_STRIP);
-  //draw the border of the cylinder
-  /*if(shiftKeyPressed) {
-    for (int c = 0; c < x.length; c++) {
-    cylinder.vertex(x[c], y[c], 0);
-    cylinder.vertex(x[c], y[c], cylinderHeight);
-  } 
-  } else {*/
-    for (int c = 0; c < x.length; c++) {
+  for (int c = 0; c < x.length; c++) {
     cylinder.vertex(x[c], 0, y[c]);
     cylinder.vertex(x[c], cylinderHeight, y[c]);
-  //}
   }
-  
+
   cylinder.endShape();
 
   //noStroke();
-  
+
   cylinderSHIFT = createShape();
   cylinderSHIFT.beginShape(TRIANGLE);
   //dessine le "couvercle"
-    for (int a = 0; a < x.length; a++) {
+  for (int a = 0; a < x.length; a++) {
     cylinderSHIFT.vertex(x[a], y[a], cylinderHeight);
     if (a + 1 >= x.length) {
       cylinderSHIFT.vertex(x[0], y[0], cylinderHeight);
@@ -141,9 +105,9 @@ void setup () {
     }
     cylinderSHIFT.vertex(0, 0, cylinderHeight);
   }
-  
+
   //dessine le "bottom"
-   for (int b = 0; b < x.length; b++) {
+  for (int b = 0; b < x.length; b++) {
     cylinderSHIFT.vertex(x[b], y[b], 0);
     if (b + 1 >= x.length) {
       cylinderSHIFT.vertex(x[0], y[0], 0);
@@ -156,15 +120,14 @@ void setup () {
 
   //cylinder.beginShape(QUAD_STRIP);
   //draw the border of the cylinder
-    for (int c = 0; c < x.length; c++) {
+  for (int c = 0; c < x.length; c++) {
     cylinderSHIFT.vertex(x[c], y[c], 0);
     cylinderSHIFT.vertex(x[c], y[c], cylinderHeight);
   }  
-  
+
   cylinderSHIFT.endShape();
-  
-  noStroke(); 
-  
+
+  noStroke();
 }
 
 void draw() {
@@ -201,10 +164,13 @@ void draw() {
 
     //cylinder
     for (int i = 0; i < arrayCyl.size(); i++) {
+      pushMatrix();
       cylinder.setFill(color(255, 204, 0));
-      shape(cylinder, arrayCyl.get(i).x, arrayCyl.get(i).y);
+      translate(arrayCyl.get(i).x - boxWidth/2, -2*boxThick, arrayCyl.get(i).y-boxHeight/2);
+      shape(cylinder);
+      popMatrix();
     }
-    
+
     translate(location.x, location.y, location.z); 
     sphere(ballRadius);
 
@@ -233,14 +199,22 @@ void draw() {
     rect(rectCornerX, rectCornerY, boxWidth, boxHeight);
     fill(0);
     ellipse(width/2 + location.x, height/2 + location.z, 2*ballRadius, 2*ballRadius);
-    translate(mouseX, mouseY, 0);
-    cylinderSHIFT.setFill(color(255, 204, 0));
-    shape(cylinderSHIFT);
+    for (int i = 0; i < arrayCyl.size(); i++) {
+      cylinderSHIFT.setFill(color(255, 204, 0));
+      shape(cylinderSHIFT, arrayCyl.get(i).x, arrayCyl.get(i).y);
+    }
+
+
     if (cylinderKeyPressed) {
       float x = mouseX; 
       float y = mouseY; 
       PVector v1 = new PVector(x, y); 
       arrayCyl.add(v1);
+      cylinderKeyPressed = false;
+    } else {
+      translate(mouseX, mouseY, 0);
+      cylinderSHIFT.setFill(color(255, 204, 0));
+      shape(cylinderSHIFT);
     }
   }
 }
