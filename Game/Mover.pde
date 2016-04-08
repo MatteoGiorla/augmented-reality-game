@@ -23,12 +23,9 @@ class Mover {
   }
 
 
+  //recalcule toutes les composantes phyisques qui régissent le déplacement et la position de la balle.
   void update() {
-    translate(location.x, location.y, location.z); 
-    noStroke();
-    sphere(ballRadius);
     
-
     //friction
     friction = velocity.copy();
     friction.mult(-1);
@@ -41,6 +38,10 @@ class Mover {
 
     velocity.add(friction);
     velocity.add(gravityForce);
+    
+    //appliquer la velocité à la position 
+    location.add(velocity);
+    
   }
 
   void checkEdges() {
@@ -61,19 +62,25 @@ class Mover {
     
   }
 
+  // affiche la balle dans le jeu
   void display() {
-    location.add(velocity);
+    translate(location.x, location.y, location.z); 
+    noStroke();
+    sphere(ballRadius);
   }
 
   void checkCylinderCollision() {
     for (int i = 0; i < arrayCyl.size(); i++) {
-      println("Cylindre : " + arrayCyl.get(i).x + "   " + arrayCyl.get(i).y + "balle : " + location.x + "    " + location.y);
-      if (location.dist(arrayCyl.get(i)) <= ballRadius + (cylinderBaseSize / 2)) { // cette ligne est fausse il faut inclure les rayons. 
+      println("Cylindre : " + arrayCyl.get(i).x + "   " + arrayCyl.get(i).y + "balle : " + location.x + "    " + location.z);
+      println("Distance : " + (location.x - arrayCyl.get(i).x) + "    "  + (location.z - arrayCyl.get(i).y));
+      if ((abs(location.x - arrayCyl.get(i).x) <= ballRadius + (cylinderBaseSize / 2))  && (abs(location.z - arrayCyl.get(i).y) <= ballRadius+(cylinderBaseSize/2))) { // cette ligne est fausse il faut inclure les rayons. 
         //créer vecteur normal
-        PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.y - arrayCyl.get(i).y);
+        PVector velocity2D = new PVector(velocity.x, velocity.z);
+        PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y);
         //float insideMul = velocity.dot(normalCyl);
-        PVector newVelocity = velocity.sub(normalCyl.mult((velocity.dot(normalCyl)) * 2.0));
-        velocity = newVelocity;
+        PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl)) * 2.0));
+        velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
+        
       }
     }
   }

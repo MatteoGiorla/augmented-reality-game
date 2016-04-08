@@ -38,6 +38,7 @@ void settings() {
 
 void setup () {
   // création d'un cylindre (cylinder)
+  noStroke();
   float angle;
   float[] x = new float[cylinderResolution + 1];
   float[] y = new float[cylinderResolution + 1];
@@ -49,7 +50,7 @@ void setup () {
   }
   cylinder = createShape();
   cylinder.beginShape(TRIANGLE);
-
+  
   for (int a = 0; a < x.length; a++) {
     cylinder.vertex(x[a], cylinderHeight, y[a]);
     if (a + 1 >= x.length) {
@@ -76,8 +77,6 @@ void setup () {
   }
 
   cylinder.endShape();
-
-  //noStroke();
 }
 
 void draw() {
@@ -140,6 +139,15 @@ void draw() {
     box(boxWidth, boxThick, boxHeight);
     mover.updateSHIFT();
 
+    //cylinder
+    for (int i = 0; i < arrayCyl.size(); i++) {
+      pushMatrix();
+      cylinder.setFill(color(255, 204, 0));
+      //println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
+      translate(arrayCyl.get(i).x, -2*boxThick, arrayCyl.get(i).y);
+      shape(cylinder);
+      popMatrix();
+    }
 
     // MAGIC NUMBERS 0.675 ET 0.15 ! TROUVER UNE RELATION AVEC WIDTH HEIGHT ETC BLABLA BLA
     float cylX = map(mouseX, 0, width, -(boxWidth/2 + abs(cameraDistance)*0.675),(boxWidth/2 + abs(cameraDistance)*0.675));
