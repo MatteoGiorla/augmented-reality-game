@@ -27,7 +27,7 @@ static ArrayList<PVector> arrayCyl = new ArrayList();
 
 //variables relatives au cylindre
 static float cylinderBaseSize = 100;
-static float cylinderHeight = 70;
+static float cylinderHeight = 150;
 static int cylinderResolution = 40;
 static PShape cylinder = new PShape();
 static boolean cylinderKeyPressed = false; 
@@ -115,7 +115,7 @@ void draw() {
       pushMatrix();
       cylinder.setFill(color(255, 204, 0));
       //println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
-      translate(arrayCyl.get(i).x, -2*boxThick, arrayCyl.get(i).y);
+      translate(arrayCyl.get(i).x, -2*boxThick-cylinderHeight/2, arrayCyl.get(i).y);
       shape(cylinder);
       popMatrix();
     }
@@ -152,14 +152,16 @@ void draw() {
     // MAGIC NUMBERS 0.675 ET 0.15 ! TROUVER UNE RELATION AVEC WIDTH HEIGHT ETC BLABLA BLA
     float cylX = map(mouseX, 0, width, -(boxWidth/2 + abs(cameraDistance)*0.675),(boxWidth/2 + abs(cameraDistance)*0.675));
     float cylY = map(mouseY, 0, height, -(boxHeight/2 + abs(cameraDistance)*0.15),(boxHeight/2 + abs(cameraDistance)*0.15));
-    translate(constrain(cylX, -boxWidth/2, boxWidth/2) , -2*boxThick, constrain(cylY, -boxHeight/2, boxHeight/2));
+    float cylXConstr = constrain(cylX, -boxWidth/2, boxWidth/2);
+    float cylYConstr = constrain(cylY, -boxHeight/2, boxHeight/2);
+    translate(cylXConstr , -2*boxThick, cylYConstr);
     cylinder.setFill(color(255, 204, 0));
     shape(cylinder);
 
 
     if (cylinderKeyPressed) {
-     float x = cylX; 
-     float y = cylY; 
+     float x = cylXConstr; 
+     float y = cylYConstr; 
      PVector v1 = new PVector(x, y); 
      arrayCyl.add(v1);
      cylinderKeyPressed = false;
