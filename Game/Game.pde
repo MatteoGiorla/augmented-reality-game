@@ -166,7 +166,8 @@ void draw() {
     for (int i = 0; i < arrayCyl.size(); i++) {
       pushMatrix();
       cylinder.setFill(color(255, 204, 0));
-      translate(arrayCyl.get(i).x - boxWidth/2, -2*boxThick, arrayCyl.get(i).y-boxHeight/2);
+      println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
+      translate(arrayCyl.get(i).x, -2*boxThick, arrayCyl.get(i).y);
       shape(cylinder);
       popMatrix();
     }
@@ -195,6 +196,7 @@ void draw() {
   else if (shiftKeyPressed) {
     float rectCornerX = width/2 - boxWidth/2;
     float rectCornerY = height/2 - boxHeight/2;
+    //println("rect : " + rectCornerX + "    " + rectCornerY);
     fill(125);
     rect(rectCornerX, rectCornerY, boxWidth, boxHeight);
     fill(0);
@@ -212,7 +214,8 @@ void draw() {
       arrayCyl.add(v1);
       cylinderKeyPressed = false;
     } else {
-      translate(mouseX, mouseY, 0);
+      translate(mouseX, mouseY, 0.7*depth);
+      scale(0.3);
       cylinderSHIFT.setFill(color(255, 204, 0));
       shape(cylinderSHIFT);
     }
