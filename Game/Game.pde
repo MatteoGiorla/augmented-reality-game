@@ -110,8 +110,6 @@ void draw() {
     fill(255);
     stroke(0);
     box(boxWidth, boxThick, boxHeight);
-    
-
 
     //cylinder
     for (int i = 0; i < arrayCyl.size(); i++) {
@@ -143,16 +141,17 @@ void draw() {
     mover.updateSHIFT();
 
 
-    float cylX = /*mouseX-width/2; map(mouseX-width/2, -width/2, width/2, width/2-boxWidth/2, width/2+boxWidth/2);*/ map(mouseX-width/2, 0, width, (boxWidth - width) / 2, (boxWidth + width) / 2);
-    float cylY = /*mouseY-height/2;*/ map(mouseY-height/2, 0, height, height/2-boxHeight/2, height/2+boxHeight/2);
-    translate(cylX, -2*boxThick, cylY);
+    // MAGIC NUMBERS 0.675 ET 0.15 ! TROUVER UNE RELATION AVEC WIDTH HEIGHT ETC BLABLA BLA
+    float cylX = map(mouseX, 0, width, -(boxWidth/2 + abs(cameraDistance)*0.675),(boxWidth/2 + abs(cameraDistance)*0.675));
+    float cylY = map(mouseY, 0, height, -(boxHeight/2 + abs(cameraDistance)*0.15),(boxHeight/2 + abs(cameraDistance)*0.15));
+    translate(constrain(cylX, -boxWidth/2, boxWidth/2) , -2*boxThick, constrain(cylY, -boxHeight/2, boxHeight/2));
     cylinder.setFill(color(255, 204, 0));
     shape(cylinder);
 
 
     if (cylinderKeyPressed) {
-     float x = mouseX; 
-     float y = mouseY; 
+     float x = cylX; 
+     float y = cylY; 
      PVector v1 = new PVector(x, y); 
      arrayCyl.add(v1);
      cylinderKeyPressed = false;
