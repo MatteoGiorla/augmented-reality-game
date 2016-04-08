@@ -30,7 +30,6 @@ static float cylinderBaseSize = 100;
 static float cylinderHeight = 70;
 static int cylinderResolution = 40;
 static PShape cylinder = new PShape();
-static PShape cylinderSHIFT = new PShape();
 static boolean cylinderKeyPressed = false; 
 
 void settings() {
@@ -79,51 +78,13 @@ void setup () {
   cylinder.endShape();
 
   //noStroke();
-
-  cylinderSHIFT = createShape();
-  cylinderSHIFT.beginShape(TRIANGLE);
-  //dessine le "couvercle"
-  for (int a = 0; a < x.length; a++) {
-    cylinderSHIFT.vertex(x[a], y[a], cylinderHeight);
-    if (a + 1 >= x.length) {
-      cylinderSHIFT.vertex(x[0], y[0], cylinderHeight);
-    } else {
-      cylinderSHIFT.vertex(x[a+1], y[a+1], cylinderHeight);
-    }
-    cylinderSHIFT.vertex(0, 0, cylinderHeight);
-  }
-
-  //dessine le "bottom"
-  for (int b = 0; b < x.length; b++) {
-    cylinderSHIFT.vertex(x[b], y[b], 0);
-    if (b + 1 >= x.length) {
-      cylinderSHIFT.vertex(x[0], y[0], 0);
-    } else {
-      cylinderSHIFT.vertex(x[b+1], y[b+1], 0);
-    }
-    cylinderSHIFT.vertex(0, 0, 0);
-  } 
-  //cylinder.endShape();
-
-  //cylinder.beginShape(QUAD_STRIP);
-  //draw the border of the cylinder
-  for (int c = 0; c < x.length; c++) {
-    cylinderSHIFT.vertex(x[c], y[c], 0);
-    cylinderSHIFT.vertex(x[c], y[c], cylinderHeight);
-  }  
-
-  cylinderSHIFT.endShape();
-
-  noStroke();
 }
 
 void draw() {
   background(235);
-  camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
 
   if (!shiftKeyPressed) {
-    textSize(40);
-    text("Angle x : " + Math.toDegrees(angleX) + "°  Angle Z : " + Math.toDegrees(angleZ) + "°  Speed : " + speed, 20, 20);
+    camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
     directionalLight(50, 100, 125, 0, 1, 0);
     translate(width/2, height/2, 0);
     ambientLight(102, 102, 102);
@@ -147,13 +108,16 @@ void draw() {
       rotateZ(rzImmobile);
     }
     fill(255);
+    stroke(0);
     box(boxWidth, boxThick, boxHeight);
+    
+
 
     //cylinder
     for (int i = 0; i < arrayCyl.size(); i++) {
       pushMatrix();
       cylinder.setFill(color(255, 204, 0));
-      println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
+      //println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
       translate(arrayCyl.get(i).x, -2*boxThick, arrayCyl.get(i).y);
       shape(cylinder);
       popMatrix();
@@ -163,36 +127,36 @@ void draw() {
     mover.checkEdges(); 
     mover.checkCylinderCollision();
     mover.display();
-    
   }
 
   //SHIFT
   else if (shiftKeyPressed) {
-    float rectCornerX = width/2 - boxWidth/2;
-    float rectCornerY = height/2 - boxHeight/2;
-    //println("rect : " + rectCornerX + "    " + rectCornerY);
-    fill(125);
-    rect(rectCornerX, rectCornerY, boxWidth, boxHeight);
-    fill(0);
-    //ellipse(width/2 + mover.location.x, height/2 + mover.location.z, 2*ballRadius, 2*ballRadius);
-    for (int i = 0; i < arrayCyl.size(); i++) {
-      cylinderSHIFT.setFill(color(255, 204, 0));
-      shape(cylinderSHIFT, arrayCyl.get(i).x, arrayCyl.get(i).y);
-    }
+    float cameraDistance = -height*2;
+    camera(width/2, cameraDistance, 1, width/2, height/2, 0, 0, 1, 0);
+    //ortho();
+    directionalLight(50, 100, 125, 0, 1, 0);
+    translate(width/2, height/2, 0);
+    ambientLight(102, 102, 102);
+    fill(255);
+    stroke(0);
+    box(boxWidth, boxThick, boxHeight);
+    mover.updateSHIFT();
+
+
+    float cylX = /*mouseX-width/2; map(mouseX-width/2, -width/2, width/2, width/2-boxWidth/2, width/2+boxWidth/2);*/ map(mouseX-width/2, 0, width, (boxWidth - width) / 2, (boxWidth + width) / 2);
+    float cylY = /*mouseY-height/2;*/ map(mouseY-height/2, 0, height, height/2-boxHeight/2, height/2+boxHeight/2);
+    translate(cylX, -2*boxThick, cylY);
+    cylinder.setFill(color(255, 204, 0));
+    shape(cylinder);
 
 
     if (cylinderKeyPressed) {
-      float x = mouseX; 
-      float y = mouseY; 
-      PVector v1 = new PVector(x, y); 
-      arrayCyl.add(v1);
-      cylinderKeyPressed = false;
-    } else {
-      translate(mouseX, mouseY, 0.7*depth);
-      scale(0.3);
-      cylinderSHIFT.setFill(color(255, 204, 0));
-      shape(cylinderSHIFT);
-    }
+     float x = mouseX; 
+     float y = mouseY; 
+     PVector v1 = new PVector(x, y); 
+     arrayCyl.add(v1);
+     cylinderKeyPressed = false;
+     }
   }
 }
 

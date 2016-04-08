@@ -24,10 +24,11 @@ class Mover {
 
 
   void update() {
-
     translate(location.x, location.y, location.z); 
+    noStroke();
     sphere(ballRadius);
     
+
     //friction
     friction = velocity.copy();
     friction.mult(-1);
@@ -51,13 +52,23 @@ class Mover {
     }
   }
   
-    void display() {
+  void updateSHIFT() {
+    pushMatrix();
+    translate(location.x, location.y, location.z); 
+    stroke(0);
+    sphere(ballRadius);
+    popMatrix();
+    
+  }
+
+  void display() {
     location.add(velocity);
   }
-  
-  void checkCylinderCollision(){
-    for(int i = 0; i < arrayCyl.size(); i++) {
-      if(location.dist(arrayCyl.get(i)) <= ballRadius + (cylinderBaseSize / 2)) { // cette ligne est fausse il faut inclure les rayons. 
+
+  void checkCylinderCollision() {
+    for (int i = 0; i < arrayCyl.size(); i++) {
+      println("Cylindre : " + arrayCyl.get(i).x + "   " + arrayCyl.get(i).y + "balle : " + location.x + "    " + location.y);
+      if (location.dist(arrayCyl.get(i)) <= ballRadius + (cylinderBaseSize / 2)) { // cette ligne est fausse il faut inclure les rayons. 
         //créer vecteur normal
         PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.y - arrayCyl.get(i).y);
         //float insideMul = velocity.dot(normalCyl);
