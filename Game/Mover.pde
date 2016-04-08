@@ -54,4 +54,16 @@ class Mover {
     void display() {
     location.add(velocity);
   }
+  
+  void checkCylinderCollision(){
+    for(int i = 0; i < arrayCyl.size(); i++) {
+      if(location.dist(arrayCyl.get(i)) <= ballRadius + (cylinderBaseSize / 2)) { // cette ligne est fausse il faut inclure les rayons. 
+        //créer vecteur normal
+        PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.y - arrayCyl.get(i).y);
+        //float insideMul = velocity.dot(normalCyl);
+        PVector newVelocity = velocity.sub(normalCyl.mult((velocity.dot(normalCyl)) * 2.0));
+        velocity = newVelocity;
+      }
+    }
+  }
 }

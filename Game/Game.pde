@@ -161,7 +161,9 @@ void draw() {
 
     mover.update(); 
     mover.checkEdges(); 
+    mover.checkCylinderCollision();
     mover.display();
+    
   }
 
   //SHIFT
