@@ -25,7 +25,7 @@ class Mover {
 
   //recalcule toutes les composantes phyisques qui régissent le déplacement et la position de la balle.
   void update() {
-    
+
     //friction
     friction = velocity.copy();
     friction.mult(-1);
@@ -38,10 +38,9 @@ class Mover {
 
     velocity.add(friction);
     velocity.add(gravityForce);
-    
+
     //appliquer la velocité à la position 
     location.add(velocity);
-    
   }
 
   void checkEdges() {
@@ -52,14 +51,13 @@ class Mover {
       velocity.z = -velocity.z;
     }
   }
-  
+
   void updateSHIFT() {
     pushMatrix();
     translate(location.x, location.y, location.z); 
     stroke(0);
     sphere(ballRadius);
     popMatrix();
-    
   }
 
   // affiche la balle dans le jeu
@@ -71,18 +69,26 @@ class Mover {
 
   void checkCylinderCollision() {
     for (int i = 0; i < arrayCyl.size(); i++) {
+
       println("Cylindre : " + arrayCyl.get(i).x + "   " + arrayCyl.get(i).y + "balle : " + location.x + "    " + location.z);
       println("Distance : " + (location.x - arrayCyl.get(i).x) + "    "  + (location.z - arrayCyl.get(i).y));
       boolean velocityAdapted = false;
       if ((abs(location.x - arrayCyl.get(i).x) <= ballRadius + (cylinderBaseSize / 2))  && (abs(location.z - arrayCyl.get(i).y) <= ballRadius+(cylinderBaseSize/2)) && !velocityAdapted) {
         //créer vecteur normal
         PVector velocity2D = new PVector(velocity.x, velocity.z);
+<<<<<<< Updated upstream
         PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y).normalize();
         PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl))*(2.0)));
         
         velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
         println("Vitesse : " + velocity);
         velocityAdapted = true;
+=======
+        PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y);
+        //float insideMul = velocity.dot(normalCyl);
+        PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl)) * 2.0));
+        velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
+>>>>>>> Stashed changes
       }
     }
   }

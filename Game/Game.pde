@@ -1,4 +1,4 @@
-
+ 
 //NOTE Peut être serait il judicieux de créer des classes ? (genre pour le plateau et la balle) Pour rendre notre code plus modularisable et lisible...
 
 static int windowHeight = 1250;
@@ -49,7 +49,7 @@ void setup () {
     y[i] = cos(angle) * cylinderBaseSize;
   }
   cylinder = createShape();
-  cylinder.beginShape(TRIANGLE);
+  cylinder.beginShape(QUAD_STRIP);
   
   for (int a = 0; a < x.length; a++) {
     cylinder.vertex(x[a], cylinderHeight, y[a]);
@@ -158,7 +158,6 @@ void draw() {
     cylinder.setFill(color(255, 204, 0));
     shape(cylinder);
 
-
     if (cylinderKeyPressed) {
      float x = cylXConstr; 
      float y = cylYConstr; 
@@ -166,6 +165,7 @@ void draw() {
      arrayCyl.add(v1);
      cylinderKeyPressed = false;
      }
+
   }
 }
 
