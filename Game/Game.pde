@@ -1,17 +1,8 @@
 
 //NOTE Peut être serait il judicieux de créer des classes ? (genre pour le plateau et la balle) Pour rendre notre code plus modularisable et lisible...
 
-//Constantes du programe.
-final static float gravityConstant = 0.81; //une trop grand force gravitationnelle n'est pas super non plus.
-final static float mu = 0.16; //ceci représente le coefficient de frottement du chêne savonné. Parce qu'à la fin du projet je veux que notre plaque soit du bois de chêne savonné.
-final static float normalForce = 1;
-float frictionMagnitude = mu*normalForce;
-
 static int windowHeight = 1250;
 static int windowWidth = 700;
-
-//variables globales du programme
-//pourraient peut être 'etre déclarées dans le draw directement ? (Certaines en tout cas)
 
 //variablesde la caméra.
 static float depth = 2000;
@@ -27,12 +18,8 @@ static float speed = 1.0;
 static final float boxWidth = 1500; // valeur qui sé'tend sur l'axe des x
 static final float boxThick =  50; // valeur qui s'étend sur l'axe des y
 static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
-static final  float ballRadius = 50;
 
-//variables relatives à la balle.
-static PVector gravityForce = new PVector(0, 0, 0);
-static PVector velocity = new PVector(0, 0, 0);
-static PVector location = new PVector(0, -(ballRadius + boxThick/2), 0); // position de base pour que la sphère soit sur le plateau.
+Mover mover = new Mover();
 
 //variables relatives au SHIFT
 static boolean shiftKeyPressed = false;
@@ -172,24 +159,9 @@ void draw() {
       popMatrix();
     }
 
-    translate(location.x, location.y, location.z); 
-    sphere(ballRadius);
-
-    //friction
-    PVector friction = velocity.copy();
-    friction.mult(-1);
-    friction.normalize();
-    friction.mult(frictionMagnitude);
-
-    //gravity
-    gravityForce.x = sin(angleZ) * gravityConstant;
-    gravityForce.z = sin(angleX) * gravityConstant;
-
-    velocity.add(friction);
-    velocity.add(gravityForce);
-    checkXEdges(location, velocity);
-    checkZEdges(location, velocity);
-    location.add(velocity);
+    mover.update(); 
+    mover.checkEdges(); 
+    mover.display();
   }
 
   //SHIFT
@@ -200,7 +172,7 @@ void draw() {
     fill(125);
     rect(rectCornerX, rectCornerY, boxWidth, boxHeight);
     fill(0);
-    ellipse(width/2 + location.x, height/2 + location.z, 2*ballRadius, 2*ballRadius);
+    //ellipse(width/2 + mover.location.x, height/2 + mover.location.z, 2*ballRadius, 2*ballRadius);
     for (int i = 0; i < arrayCyl.size(); i++) {
       cylinderSHIFT.setFill(color(255, 204, 0));
       shape(cylinderSHIFT, arrayCyl.get(i).x, arrayCyl.get(i).y);
@@ -227,17 +199,6 @@ void mouseWheel(MouseEvent event) {
   speed = bound(speed * map(wheelCount*30, -100, 100, 0.2, 1.5), 0.2, 1.5);
 }
 
-void checkXEdges(PVector loca, PVector velo) {
-  if (loca.x + ballRadius > boxWidth/2 || loca.x - ballRadius < -boxWidth/2) {
-    velo.x = -velo.x;
-  }
-}
-
-void checkZEdges(PVector loca, PVector velo) {
-  if (loca.z + ballRadius > boxHeight/2 || loca.z - ballRadius < -boxHeight/2) {
-    velo.z = -velo.z;
-  }
-}
 
 // méthode qui retourne le premier float donné en argument déléimité par deux limites également en float.
 float bound(float toBound, float lowerBound, float upperBound) {
