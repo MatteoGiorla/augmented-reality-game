@@ -69,7 +69,6 @@ class Mover {
 
   void checkCylinderCollision() {
     for (int i = 0; i < arrayCyl.size(); i++) {
-
       println("Cylindre : " + arrayCyl.get(i).x + "   " + arrayCyl.get(i).y + "balle : " + location.x + "    " + location.z);
       println("Distance : " + (location.x - arrayCyl.get(i).x) + "    "  + (location.z - arrayCyl.get(i).y));
       boolean velocityAdapted = false;

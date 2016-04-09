@@ -1,10 +1,8 @@
- 
-//NOTE Peut être serait il judicieux de créer des classes ? (genre pour le plateau et la balle) Pour rendre notre code plus modularisable et lisible...
 
 static int windowHeight = 1250;
 static int windowWidth = 700;
 
-//variablesde la caméra.
+//variable de la caméra.
 static float depth = 2000;
 
 //variables relatives à la plaque et son déplacement.
@@ -21,7 +19,7 @@ static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
 
 Mover mover = new Mover();
 
-//variables relatives au SHIFT
+//variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
 static ArrayList<PVector> arrayCyl = new ArrayList(); 
 
@@ -81,37 +79,22 @@ void setup () {
 
 void draw() {
   background(235);
+  directionalLight(50, 100, 125, 0, 1, 0);
+  ambientLight(102, 102, 102);
 
   if (!shiftKeyPressed) {
+    //on fixe la caméra en face du plateau puis on déplace le plateau correctement au centre de la fenêtre.
     camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
-    directionalLight(50, 100, 125, 0, 1, 0);
     translate(width/2, height/2, 0);
-    ambientLight(102, 102, 102);
-    //peut être modularisé ce bout de code dans une fonctions pour améliorer la lisibilité ? A voir...
-    if (mousePressed == true) {
-      float mouseXmapped = bound(mouseX, 0, width);
-      float mouseYmapped = bound(mouseY, 0, height);
-      float rz = map(mouseXmapped - bound(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
-      float rx = map(mouseYmapped - bound(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
-      angleX = bound(rx + rxImmobile, -PI/3, PI/3);
-      angleZ = bound(rz + rzImmobile, -PI/3, PI/3);
-      rotateX(-angleX);
-      rotateZ(angleZ);
-    } else {        
-      rxImmobile = angleX;
-      rzImmobile = angleZ;
-
-      mouseXSaved = mouseX;
-      mouseYSaved = mouseY;
-      rotateX(-rxImmobile);
-      rotateZ(rzImmobile);
-    }
+    
+    //fonction qui s'occupe de pivoter le plateau.
+    rotationGestion();  
     fill(255);
     stroke(0);
     box(boxWidth, boxThick, boxHeight);
 
     //cylinder
-    for (int i = 0; i < arrayCyl.size(); i++) {
+    for (int i = 0; i < arrayCyl.size(); ++i) {
       pushMatrix();
       cylinder.setFill(color(255, 204, 0));
       //println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
@@ -130,10 +113,7 @@ void draw() {
   else if (shiftKeyPressed) {
     float cameraDistance = -height*2;
     camera(width/2, cameraDistance, 1, width/2, height/2, 0, 0, 1, 0);
-    //ortho();
-    directionalLight(50, 100, 125, 0, 1, 0);
     translate(width/2, height/2, 0);
-    ambientLight(102, 102, 102);
     fill(255);
     stroke(0);
     box(boxWidth, boxThick, boxHeight);
@@ -158,6 +138,7 @@ void draw() {
     cylinder.setFill(color(255, 204, 0));
     shape(cylinder);
 
+    //fixation du cylindre.
     if (cylinderKeyPressed) {
      float x = cylXConstr; 
      float y = cylYConstr; 
@@ -165,28 +146,35 @@ void draw() {
      arrayCyl.add(v1);
      cylinderKeyPressed = false;
      }
-
   }
+}
+
+//fonction qui s'occupe de tourner le plateau sur l'axe des X et des Y en fonction de l'utilisation de la souris en mode "CLICK"
+void rotationGestion(){
+  if (mousePressed == true) {
+      float rz = map(mouseX - constrain(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
+      float rx = map(mouseY - constrain(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
+      angleX = constrain(rx + rxImmobile, -PI/3, PI/3);
+      angleZ = constrain(rz + rzImmobile, -PI/3, PI/3);
+      rotateX(-angleX);
+      rotateZ(angleZ);
+    } else {        
+      rxImmobile = angleX;
+      rzImmobile = angleZ;
+      mouseXSaved = mouseX;
+      mouseYSaved = mouseY;
+      rotateX(-rxImmobile);
+      rotateZ(rzImmobile);
+    }
 }
 
 void mouseWheel(MouseEvent event) {
   float wheelCount = event.getCount();
-  speed = bound(speed * map(wheelCount*30, -100, 100, 0.2, 1.5), 0.2, 1.5);
+  speed = constrain(speed * map(wheelCount*30, -100, 100, 0.2, 1.5), 0.2, 1.5);
 }
 
 
-// méthode qui retourne le premier float donné en argument déléimité par deux limites également en float.
-float bound(float toBound, float lowerBound, float upperBound) {
-  if (toBound > upperBound) {
-    return upperBound;
-  } else if (toBound < lowerBound) {
-    return lowerBound;
-  } else {
-    return toBound;
-  }
-}
-
-//simple méthode permettant de déterminer quand est pressée la souris.
+// méthode permettant de gérer la profondeur de champ à l'aide de touches up et down du clavier. 
 void keyPressed() {
   if (key == CODED) {
     if (keyCode == UP) {
@@ -206,7 +194,6 @@ void keyReleased() {
 }
 
 void mouseReleased() {
-  // trouver un moyen "d'accrocher un cylindre"
   cylinderKeyPressed = false;
 }
 
