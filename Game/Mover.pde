@@ -6,6 +6,13 @@ static float frictionMagnitude;
 static PVector location;
 static PVector veloThreshold;
 
+enum direction{
+    UP,
+    DOWN,
+    RIGHT,
+    LEFT,
+}
+
 static final  float ballRadius = 50;
 
 //Constantes du programe.
@@ -38,36 +45,71 @@ class Mover {
     gravityForce.x = sin(angleZ) * gravityConstant;
     gravityForce.z = sin(angleX) * gravityConstant;
   
-      velocity.add(friction);  
-      velocity.add(gravityForce);
-      checkEdges();
+    velocity.add(friction);  
+    velocity.add(gravityForce);
+    checkCylinderCollision();
+    checkEdges();
     //appliquer la velocité à la position 
     location.add(velocity);
   }
 
   void checkEdges() {
-    
-    if (location.x + ballRadius > boxWidth/2 || location.x - ballRadius < -boxWidth/2) {
+    if (location.x + ballRadius > boxWidth/2) {
       if(isStopped(velocity.x, veloThreshold.x)){
-        velocity.x = 0;
+        if(facingToward(gravityForce.x, direction.RIGHT)){
+          velocity.x = 0;
+        }
       }else{
         velocity.x = -velocity.x;
       }
     }
-    if (location.z + ballRadius > boxHeight/2 || location.z - ballRadius < -boxHeight/2) { 
+     
+    if(location.x - ballRadius < -boxWidth/2){
+      if(isStopped(velocity.x, veloThreshold.x)){
+        if(facingToward(gravityForce.x, direction.LEFT)){
+          velocity.x = 0;
+        }
+      }else{
+        velocity.x = -velocity.x;
+      }
+    }
+    
+    if (location.z + ballRadius > boxHeight/2) {
       if(isStopped(velocity.z, veloThreshold.z)){
-        velocity.z = 0;
+        if(facingToward(gravityForce.z, direction.DOWN)){
+          velocity.z = 0;
+        }
       }else{
         velocity.z = -velocity.z;
       }
     }
-    println("veloz: "+ velocity.z);
+     
+    if(location.z - ballRadius < -boxHeight/2){
+      if(isStopped(velocity.z, veloThreshold.z)){
+        if(facingToward(gravityForce.z, direction.UP)){
+          velocity.z = 0;
+        }
+      }else{
+        velocity.z = -velocity.z;
+      }
+    }
   }
   
   
-  //indique si la coordonnées de la vélocité est en dessous d'un certan seuil, donc que l'objet ne devrait plus bouger dans cette coordonnée.
+  //indique si la coordonnées de la vélocité est en dessous d'un certan seuil, donc que l'objet ne devrait plus bouger dans cette direction.
   boolean isStopped(float veloCoord, float thresCoord){
     return (abs(veloCoord) < thresCoord);
+  }
+  
+  //dit dans quelle direction est tourné le plateau.
+  boolean facingToward(float gravity, direction DIR){
+    switch(DIR){
+      case UP: return (gravity < 0);
+      case DOWN: return (gravity >= 0);
+      case LEFT: return (gravity < 0);
+      case RIGHT: return (gravity >= 0);
+      default: return false;
+    }
   }
   
 
