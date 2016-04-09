@@ -4,6 +4,7 @@ static PVector velocity;
 static PVector friction;
 static float frictionMagnitude;
 static PVector location;
+static PVector veloThreshold;
 
 static final  float ballRadius = 50;
 
@@ -20,6 +21,7 @@ class Mover {
     location = new PVector(0, -(ballRadius + Game.boxThick/2), 0); // position de base pour que la sphère soit sur le plateau.
     friction = new PVector(0, 0, 0);
     frictionMagnitude = normalForce * mu;
+    veloThreshold = new PVector(0.2,0.0,2);
   }
 
 
@@ -35,22 +37,39 @@ class Mover {
     //gravity
     gravityForce.x = sin(angleZ) * gravityConstant;
     gravityForce.z = sin(angleX) * gravityConstant;
-
-    velocity.add(friction);
-    velocity.add(gravityForce);
-
+  
+      velocity.add(friction);  
+      velocity.add(gravityForce);
+      checkEdges();
     //appliquer la velocité à la position 
     location.add(velocity);
   }
 
   void checkEdges() {
+    
     if (location.x + ballRadius > boxWidth/2 || location.x - ballRadius < -boxWidth/2) {
-      velocity.x = -velocity.x;
+      if(isStopped(velocity.x, veloThreshold.x)){
+        velocity.x = 0;
+      }else{
+        velocity.x = -velocity.x;
+      }
     }
-    if (location.z + ballRadius > boxHeight/2 || location.z - ballRadius < -boxHeight/2) {
-      velocity.z = -velocity.z;
+    if (location.z + ballRadius > boxHeight/2 || location.z - ballRadius < -boxHeight/2) { 
+      if(isStopped(velocity.z, veloThreshold.z)){
+        velocity.z = 0;
+      }else{
+        velocity.z = -velocity.z;
+      }
     }
+    println("veloz: "+ velocity.z);
   }
+  
+  
+  //indique si la coordonnées de la vélocité est en dessous d'un certan seuil, donc que l'objet ne devrait plus bouger dans cette coordonnée.
+  boolean isStopped(float veloCoord, float thresCoord){
+    return (abs(veloCoord) < thresCoord);
+  }
+  
 
   void updateSHIFT() {
     pushMatrix();
