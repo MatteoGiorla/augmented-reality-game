@@ -1,11 +1,3 @@
-//variables relatives à la balle.
-static PVector gravityForce;
-static PVector velocity;
-static PVector friction;
-static float frictionMagnitude;
-static PVector location;
-static PVector veloThreshold;
-
 //enum servant à représenter les directions.
 enum direction{
     UP,
@@ -16,12 +8,24 @@ enum direction{
 
 //Constantes du programe.
 final static  float ballRadius = 50;
-final static float gravityConstant = 1; //une trop grand force gravitationnelle n'est pas super non plus.
-final static float mu = 0.22; //ceci représente le coefficient de frottement du chêne savonné. Parce qu'à la fin du projet je veux que notre plaque soit du bois de chêne savonné.
+final static float gravityConstant = 0.81; //une trop grand force gravitationnelle n'est pas super non plus.
+final static float mu = 0.2; //ceci représente le coefficient de frottement du chêne savonné. Parce qu'à la fin du projet je veux que notre plaque soit du bois de chêne savonné.
 final static float normalForce = 1;
 final static float BLACK = 0;
+final static float threshold = (1.5*PI*gravityConstant)/(1+mu); //j'ai mis PI juste pour la beauté de la chose (et parce que 3 était apparament un bon facteur) 
+//ATTENTION ! Trouver le bon threshold est compliqué et est fortement dépendant de la gravity constant ainsi que du mu. 1.5*PI* gravityconstant/(1+mu)
+// se trouve être un bon threshold pour les valeurs de 0.81 pour la gravité et 0.2 pour mu. Une fonction donnant automatiquement le threshold
+//idéal en fonction de mu et gravityConstant exite probablement, mais après quelque tentatives de recherches empiriques, j'ai abandonné.
+//en gros une telle fontion devrait être proportionnel à la gravityConstante, et être inversement proportionnel à 1+mu.
 
 class Mover {
+
+ PVector gravityForce;
+ PVector velocity;
+ PVector friction;
+ float frictionMagnitude;
+ PVector location;
+ PVector veloThreshold;
 
   Mover() {
     gravityForce = new PVector(0, 0, 0);
@@ -29,7 +33,8 @@ class Mover {
     location = new PVector(0, -(ballRadius + Game.boxThick/2), 0); // position de base pour que la sphère soit sur le plateau.
     friction = new PVector(0, 0, 0);
     frictionMagnitude = normalForce * mu;
-    veloThreshold = new PVector(0.3,0.0,3);
+    
+    veloThreshold = new PVector(threshold,0.0,threshold);
   }
 
 
@@ -45,10 +50,9 @@ class Mover {
     //gravity
     gravityForce.x = sin(angleZ) * gravityConstant;
     gravityForce.z = sin(angleX) * gravityConstant;
-  
+    
     velocity.add(friction);  
     velocity.add(gravityForce);
-    
     //controle les collisions avec les cylindres et entre les bords
     checkEdges();
     checkCylinderCollision();
@@ -58,31 +62,15 @@ class Mover {
   }
 
   void checkEdges() {
-    //Check bord gauche
-    if (location.x + ballRadius > boxWidth/2) {
-      if(isStopped(velocity.x, veloThreshold.x)){
-        if(facingToward(gravityForce.x, direction.LEFT)){
-          velocity.x = 0;
-        }
-      }else{
-        velocity.x = -velocity.x;
-      }
-    }
-     
-    //check bord droit
-    if(location.x - ballRadius < -boxWidth/2){
-      if(isStopped(velocity.x, veloThreshold.x)){
-        if(facingToward(gravityForce.x, direction.RIGHT)){
-          velocity.x = 0;
-        }
-      }else{
-        velocity.x = -velocity.x;
-      }
-    }
+    int downBall = floor(location.z + ballRadius)+1;
+    int rightBall = floor(location.x + ballRadius)+1;
+    int upBall = floor(location.z - ballRadius)+1;
+    int leftBall = floor(location.x -ballRadius)+1;
     
     //check bord du bas
-    if (location.z + ballRadius > boxHeight/2) {
+    if ( downBall >= boxHeight/2) {
       if(isStopped(velocity.z, veloThreshold.z)){
+        //println("stoppedDOWN");
         if(facingToward(gravityForce.z, direction.DOWN)){
           velocity.z = 0;
         }
@@ -92,13 +80,38 @@ class Mover {
     }
      
     //check bord du haut
-    if(location.z - ballRadius < -boxHeight/2){
+    if( upBall <= -boxHeight/2){
       if(isStopped(velocity.z, veloThreshold.z)){
+        //println("stoppedUP");
         if(facingToward(gravityForce.z, direction.UP)){
           velocity.z = 0;
         }
       }else{
         velocity.z = -velocity.z;
+      }
+    }
+    
+    //threshold pas suffisant dans les x ?????
+    if (rightBall >= boxWidth/2) {
+      if(isStopped(velocity.x, veloThreshold.x)){
+        //println("stoppedRIGHT");
+        if(facingToward(gravityForce.x, direction.RIGHT)){
+          velocity.x = 0;
+        }
+      }else{
+        velocity.x = -velocity.x;
+      }
+    }
+     
+    //check bord de gauche
+    if(leftBall <= -boxWidth/2){
+      if(isStopped(velocity.x, veloThreshold.x)){
+        if(facingToward(gravityForce.x, direction.LEFT)){
+          //println("stoppedLEFT");
+          velocity.x = 0;
+        }
+      }else{
+        velocity.x = -velocity.x;
       }
     }
   }
@@ -116,7 +129,7 @@ class Mover {
       case DOWN: return (gravity >= 0);
       case LEFT: return (gravity < 0);
       case RIGHT: return (gravity >= 0);
-      default: return false;
+      default:  println("default yeah"); return false;
     }
   }
   
