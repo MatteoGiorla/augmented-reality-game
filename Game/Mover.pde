@@ -76,19 +76,13 @@ class Mover {
       if ((abs(location.x - arrayCyl.get(i).x) <= ballRadius + (cylinderBaseSize / 2))  && (abs(location.z - arrayCyl.get(i).y) <= ballRadius+(cylinderBaseSize/2)) && !velocityAdapted) {
         //créer vecteur normal
         PVector velocity2D = new PVector(velocity.x, velocity.z);
-<<<<<<< Updated upstream
         PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y).normalize();
         PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl))*(2.0)));
         
         velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
         println("Vitesse : " + velocity);
         velocityAdapted = true;
-=======
-        PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y);
-        //float insideMul = velocity.dot(normalCyl);
-        PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl)) * 2.0));
-        velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
->>>>>>> Stashed changes
+
       }
     }
   }
