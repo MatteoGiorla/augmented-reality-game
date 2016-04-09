@@ -1,11 +1,10 @@
-
 static int windowHeight = 1250;
 static int windowWidth = 700;
 
 //variable de la caméra.
 static float depth = 2000;
 
-//variables relatives à la plaque et son déplacement.
+//variables relatives au plateau et son déplacement.
 static float mouseXSaved = 0.0;
 static float mouseYSaved = 0.0;
 static float rxImmobile = 0.0;
@@ -13,10 +12,12 @@ static float rzImmobile = 0.0;
 static float angleX = 0.0;
 static float angleZ = 0.0;
 static float speed = 1.0;
+static final float boxColor = 255;
 static final float boxWidth = 1500; // valeur qui sé'tend sur l'axe des x
 static final float boxThick =  50; // valeur qui s'étend sur l'axe des y
 static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
 
+//classe qui s'occupe de la balle
 Mover mover = new Mover();
 
 //variables relatives au mode SHIFT
@@ -73,7 +74,6 @@ void setup () {
     cylinder.vertex(x[c], 0, y[c]);
     cylinder.vertex(x[c], cylinderHeight, y[c]);
   }
-
   cylinder.endShape();
 }
 
@@ -87,47 +87,35 @@ void draw() {
     camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
     translate(width/2, height/2, 0);
     
-    //fonction qui s'occupe de pivoter le plateau.
-    rotationGestion();  
-    fill(255);
-    stroke(0);
-    box(boxWidth, boxThick, boxHeight);
-
+    //pivoter le plateau.
+    rotationGestion(); 
+    
+    //box
+    boxSpawner();
+    
     //cylinder
-    for (int i = 0; i < arrayCyl.size(); ++i) {
-      pushMatrix();
-      cylinder.setFill(color(255, 204, 0));
-      //println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
-      translate(arrayCyl.get(i).x, -2*boxThick-cylinderHeight/2, arrayCyl.get(i).y);
-      shape(cylinder);
-      popMatrix();
-    }
-
+    cylinderSpawner();
+  
+    //ball
     mover.update(); 
-    mover.display();
+    mover.display(boxColor);
   }
-
   //SHIFT
   else if (shiftKeyPressed) {
     float cameraDistance = -height*2;
     camera(width/2, cameraDistance, 1, width/2, height/2, 0, 0, 1, 0);
     translate(width/2, height/2, 0);
-    fill(255);
-    stroke(0);
-    box(boxWidth, boxThick, boxHeight);
+    
+    //box
+    boxSpawner();
+    
+    //ball
     mover.updateSHIFT();
 
     //cylinder
-    for (int i = 0; i < arrayCyl.size(); i++) {
-      pushMatrix();
-      cylinder.setFill(color(255, 204, 0));
-      //println("x: "+arrayCyl.get(i).x+"y:"+ arrayCyl.get(i).y);
-      translate(arrayCyl.get(i).x, -2*boxThick, arrayCyl.get(i).y);
-      shape(cylinder);
-      popMatrix();
-    }
+    cylinderSpawner();
 
-    // MAGIC NUMBERS 0.675 ET 0.15 ! TROUVER UNE RELATION AVEC WIDTH HEIGHT ETC BLABLA BLA
+    //cf Cédric.
     float cylX = map(mouseX, 0, width, -(boxWidth/2 + abs(cameraDistance)*0.675),(boxWidth/2 + abs(cameraDistance)*0.675));
     float cylY = map(mouseY, 0, height, -(boxHeight/2 + abs(cameraDistance)*0.15),(boxHeight/2 + abs(cameraDistance)*0.15));
     float cylXConstr = constrain(cylX, -boxWidth/2, boxWidth/2);
@@ -166,13 +154,30 @@ void rotationGestion(){
     }
 }
 
+//fonction qui affiche le plateau
+void boxSpawner(){
+    fill(boxColor);
+    stroke(0);
+    box(boxWidth, boxThick, boxHeight);
+  }
+
+//fonction qui affiche les cylindres sur le plateau (qu'importe le mode)
+void cylinderSpawner(){
+    for (int i = 0; i < arrayCyl.size(); i++) {
+      pushMatrix();
+      cylinder.setFill(color(255, 204, 0));
+      translate(arrayCyl.get(i).x, -2*boxThick-cylinderHeight/2, arrayCyl.get(i).y);
+      shape(cylinder);
+      popMatrix();
+    }
+}
+
 void mouseWheel(MouseEvent event) {
   float wheelCount = event.getCount();
   speed = constrain(speed * map(wheelCount*30, -100, 100, 0.2, 1.5), 0.2, 1.5);
 }
 
-
-// méthode permettant de gérer la profondeur de champ à l'aide de touches up et down du clavier. 
+// ici on gère la profondeur de champ à l'aide de touches up et down du clavier, et on regarde également si SHIFT est activé.  
 void keyPressed() {
   if (key == CODED) {
     if (keyCode == UP) {
