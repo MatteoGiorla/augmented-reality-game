@@ -149,16 +149,15 @@ class Mover {
   }
 
   void checkCylinderCollision() {
+    PVector twoDlocation = new PVector(location.x, location.z);
     for (int i = 0; i < arrayCyl.size(); i++) {
-      boolean velocityAdapted = false;
-      if ((abs(location.x - arrayCyl.get(i).x) <= ballRadius + (cylinderBaseSize / 2))  && (abs(location.z - arrayCyl.get(i).y) <= ballRadius+(cylinderBaseSize/2)) && !velocityAdapted) {
-        //créer vecteur normal
+      PVector twoDcylinderPosition = new PVector(arrayCyl.get(i).x, arrayCyl.get(i).y);
+      if (twoDlocation.dist(twoDcylinderPosition) <= ballRadius + (cylinderBaseSize/2)) {        //créer vecteur normal
         PVector velocity2D = new PVector(velocity.x, velocity.z);
         PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y).normalize();
         PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl))*(2.0)));
         
         velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
-        velocityAdapted = true;
       }
     }
   }
