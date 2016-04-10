@@ -49,9 +49,9 @@ void setup () {
   }
   cylinder = createShape();
   cylinder.beginShape(QUAD_STRIP);
-  
+
   //on construit les vertices du sommet
-  baseCylinderConstr(x,y, cylinderHeight);
+  baseCylinderConstr(x, y, cylinderHeight);
   //on construit les vertices de la base
   baseCylinderConstr(x, y, 0);
 
@@ -63,7 +63,7 @@ void setup () {
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
-void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight){
+void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
   for (int i = 0; i < vertDotsX.length; ++i) {
     cylinder.vertex(vertDotsX[i], cylHeight, vertDotsY[i]);
     if (i + 1 >= vertDotsX.length) {
@@ -84,16 +84,16 @@ void draw() {
     //on fixe la caméra en face du plateau puis on déplace le plateau correctement au centre de la fenêtre.
     camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
     translate(width/2, height/2, 0);
-    
+
     //pivoter le plateau.
     rotationGestion(); 
-    
+
     //box
     boxSpawner();
-    
+
     //cylinder
     cylinderSpawner(cylinderHeight/2);
-  
+
     //ball
     mover.update(); 
     mover.display(boxColor);
@@ -103,10 +103,10 @@ void draw() {
     float cameraDistance = -height*2;
     camera(width/2, cameraDistance, 1, width/2, height/2, 0, 0, 1, 0);
     translate(width/2, height/2, 0);
-    
+
     //box
     boxSpawner();
-    
+
     //ball
     mover.updateSHIFT();
 
@@ -114,60 +114,60 @@ void draw() {
     cylinderSpawner(0);
 
     //cf Cédric.
-    float cylX = map(mouseX, 0, width, -(boxWidth/2 + abs(cameraDistance)*0.675),(boxWidth/2 + abs(cameraDistance)*0.675));
-    float cylY = map(mouseY, 0, height, -(boxHeight/2 + abs(cameraDistance)*0.15),(boxHeight/2 + abs(cameraDistance)*0.15));
+    float cylX = map(mouseX, 0, width, -(boxWidth/2 + abs(cameraDistance)*0.675), (boxWidth/2 + abs(cameraDistance)*0.675));
+    float cylY = map(mouseY, 0, height, -(boxHeight/2 + abs(cameraDistance)*0.15), (boxHeight/2 + abs(cameraDistance)*0.15));
     float cylXConstr = constrain(cylX, -boxWidth/2, boxWidth/2);
     float cylYConstr = constrain(cylY, -boxHeight/2, boxHeight/2);
-    translate(cylXConstr , -2*boxThick, cylYConstr);
+    translate(cylXConstr, -2*boxThick, cylYConstr);
     cylinder.setFill(color(255, 204, 0));
     shape(cylinder);
 
     //fixation du cylindre.
     if (cylinderKeyPressed) {
-     float x = cylXConstr; 
-     float y = cylYConstr; 
-     PVector v1 = new PVector(x, y); 
-     arrayCyl.add(v1);
-     cylinderKeyPressed = false;
-     }
+      float x = cylXConstr; 
+      float y = cylYConstr; 
+      PVector v1 = new PVector(x, y); 
+      arrayCyl.add(v1);
+      cylinderKeyPressed = false;
+    }
   }
 }
 
 //fonction qui s'occupe de tourner le plateau sur l'axe des X et des Y en fonction de l'utilisation de la souris en mode "CLICK"
-void rotationGestion(){
+void rotationGestion() {
   if (mousePressed == true) {
-      float rz = map(mouseX - constrain(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
-      float rx = map(mouseY - constrain(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
-      angleX = constrain(rx + rxImmobile, -PI/3, PI/3);
-      angleZ = constrain(rz + rzImmobile, -PI/3, PI/3);
-      rotateX(-angleX);
-      rotateZ(angleZ);
-    } else {        
-      rxImmobile = angleX;
-      rzImmobile = angleZ;
-      mouseXSaved = mouseX;
-      mouseYSaved = mouseY;
-      rotateX(-rxImmobile);
-      rotateZ(rzImmobile);
-    }
+    float rz = map(mouseX - constrain(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
+    float rx = map(mouseY - constrain(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
+    angleX = constrain(rx + rxImmobile, -PI/3, PI/3);
+    angleZ = constrain(rz + rzImmobile, -PI/3, PI/3);
+    rotateX(-angleX);
+    rotateZ(angleZ);
+  } else {        
+    rxImmobile = angleX;
+    rzImmobile = angleZ;
+    mouseXSaved = mouseX;
+    mouseYSaved = mouseY;
+    rotateX(-rxImmobile);
+    rotateZ(rzImmobile);
+  }
 }
 
 //fonction qui affiche le plateau
-void boxSpawner(){
-    fill(boxColor);
-    stroke(0);
-    box(boxWidth, boxThick, boxHeight);
-  }
+void boxSpawner() {
+  fill(boxColor);
+  stroke(0);
+  box(boxWidth, boxThick, boxHeight);
+}
 
 //fonction qui affiche les cylindres sur le plateau la valeur yOffset permet d'influencer le placement vertical des cylindres selon le mode.
-void cylinderSpawner(float yOffset){
-    for (int i = 0; i < arrayCyl.size(); i++) {
-      pushMatrix();
-      cylinder.setFill(color(255, 204, 0));
-      translate(arrayCyl.get(i).x, -2*boxThick-yOffset, arrayCyl.get(i).y);
-      shape(cylinder);
-      popMatrix();
-    }
+void cylinderSpawner(float yOffset) {
+  for (int i = 0; i < arrayCyl.size(); i++) {
+    pushMatrix();
+    cylinder.setFill(color(255, 204, 0));
+    translate(arrayCyl.get(i).x, -2*boxThick-yOffset, arrayCyl.get(i).y);
+    shape(cylinder);
+    popMatrix();
+  }
 }
 
 void mouseWheel(MouseEvent event) {

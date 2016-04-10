@@ -1,8 +1,8 @@
 //enum servant à représenter les directions.
-enum direction{
-    UP,
-    DOWN,
-    RIGHT,
+enum direction {
+  UP, 
+    DOWN, 
+    RIGHT, 
     LEFT,
 }
 
@@ -20,12 +20,12 @@ final static float threshold = (1.5*PI*gravityConstant)/(1+mu); //j'ai mis PI ju
 
 class Mover {
 
- PVector gravityForce;
- PVector velocity;
- PVector friction;
- float frictionMagnitude;
- PVector location;
- PVector veloThreshold;
+  PVector gravityForce;
+  PVector velocity;
+  PVector friction;
+  float frictionMagnitude;
+  PVector location;
+  PVector veloThreshold;
 
   Mover() {
     gravityForce = new PVector(0, 0, 0);
@@ -33,8 +33,8 @@ class Mover {
     location = new PVector(0, -(ballRadius + Game.boxThick/2), 0); // position de base pour que la sphère soit sur le plateau.
     friction = new PVector(0, 0, 0);
     frictionMagnitude = normalForce * mu;
-    
-    veloThreshold = new PVector(threshold,0.0,threshold);
+
+    veloThreshold = new PVector(threshold, 0.0, threshold);
   }
 
 
@@ -50,13 +50,13 @@ class Mover {
     //gravity
     gravityForce.x = sin(angleZ) * gravityConstant;
     gravityForce.z = sin(angleX) * gravityConstant;
-    
+
     velocity.add(friction);  
     velocity.add(gravityForce);
     //controle les collisions avec les cylindres et entre les bords
     checkEdges();
     checkCylinderCollision();
-    
+
     //appliquer la velocité à la position 
     location.add(velocity);
   }
@@ -66,73 +66,78 @@ class Mover {
     int rightBall = floor(location.x + ballRadius)+1;
     int upBall = floor(location.z - ballRadius)+1;
     int leftBall = floor(location.x -ballRadius)+1;
-    
+
     //check bord du bas
     if ( downBall >= boxHeight/2) {
-      if(isStopped(velocity.z, veloThreshold.z)){
+      if (isStopped(velocity.z, veloThreshold.z)) {
         //println("stoppedDOWN");
-        if(facingToward(gravityForce.z, direction.DOWN)){
+        if (facingToward(gravityForce.z, direction.DOWN)) {
           velocity.z = 0;
         }
-      }else{
+      } else {
         velocity.z = -velocity.z;
       }
     }
-     
+
     //check bord du haut
-    if( upBall <= -boxHeight/2){
-      if(isStopped(velocity.z, veloThreshold.z)){
+    if ( upBall <= -boxHeight/2) {
+      if (isStopped(velocity.z, veloThreshold.z)) {
         //println("stoppedUP");
-        if(facingToward(gravityForce.z, direction.UP)){
+        if (facingToward(gravityForce.z, direction.UP)) {
           velocity.z = 0;
         }
-      }else{
+      } else {
         velocity.z = -velocity.z;
       }
     }
-    
+
     //threshold pas suffisant dans les x ?????
     if (rightBall >= boxWidth/2) {
-      if(isStopped(velocity.x, veloThreshold.x)){
+      if (isStopped(velocity.x, veloThreshold.x)) {
         //println("stoppedRIGHT");
-        if(facingToward(gravityForce.x, direction.RIGHT)){
+        if (facingToward(gravityForce.x, direction.RIGHT)) {
           velocity.x = 0;
         }
-      }else{
+      } else {
         velocity.x = -velocity.x;
       }
     }
-     
+
     //check bord de gauche
-    if(leftBall <= -boxWidth/2){
-      if(isStopped(velocity.x, veloThreshold.x)){
-        if(facingToward(gravityForce.x, direction.LEFT)){
+    if (leftBall <= -boxWidth/2) {
+      if (isStopped(velocity.x, veloThreshold.x)) {
+        if (facingToward(gravityForce.x, direction.LEFT)) {
           //println("stoppedLEFT");
           velocity.x = 0;
         }
-      }else{
+      } else {
         velocity.x = -velocity.x;
       }
     }
   }
-  
-  
+
+
   //indique si la coordonnées de la vélocité est en dessous d'un certan seuil, donc que l'objet ne devrait plus bouger dans cette direction.
-  boolean isStopped(float veloCoord, float thresCoord){
+  boolean isStopped(float veloCoord, float thresCoord) {
     return (abs(veloCoord) < thresCoord);
   }
-  
+
   //dit dans quelle direction est tourné le plateau.
-  boolean facingToward(float gravity, direction DIR){
-    switch(DIR){
-      case UP: return (gravity < 0);
-      case DOWN: return (gravity >= 0);
-      case LEFT: return (gravity < 0);
-      case RIGHT: return (gravity >= 0);
-      default: return false;
+  boolean facingToward(float gravity, direction DIR) {
+    switch(DIR) {
+    case UP: 
+      return (gravity < 0);
+    case DOWN: 
+      return (gravity >= 0);
+    case LEFT: 
+      return (gravity < 0);
+    case RIGHT: 
+      return (gravity >= 0);
+    default: 
+      return false;
     }
   }
-  
+
   //version de update qui se contente uniquement d'afficher la balle immobile dans le mode SHIFT.
   void updateSHIFT() {
     pushMatrix();
@@ -152,11 +157,11 @@ class Mover {
     PVector twoDlocation = new PVector(location.x, location.z);
     for (int i = 0; i < arrayCyl.size(); i++) {
       PVector twoDcylinderPosition = new PVector(arrayCyl.get(i).x, arrayCyl.get(i).y);
-      if (twoDlocation.dist(twoDcylinderPosition) <= ballRadius + (cylinderBaseSize/2)) {        //créer vecteur normal
+      if (twoDlocation.dist(twoDcylinderPosition) <= ballRadius + cylinderBaseSize) {
         PVector velocity2D = new PVector(velocity.x, velocity.z);
         PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y).normalize();
         PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl))*(2.0)));
-        
+
         velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
       }
     }
