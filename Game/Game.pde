@@ -50,31 +50,29 @@ void setup () {
   cylinder = createShape();
   cylinder.beginShape(QUAD_STRIP);
   
-  for (int a = 0; a < x.length; a++) {
-    cylinder.vertex(x[a], cylinderHeight, y[a]);
-    if (a + 1 >= x.length) {
-      cylinder.vertex(x[0], cylinderHeight, y[0]);
-    } else {
-      cylinder.vertex(x[a+1], cylinderHeight, y[a+1]);
-    }
-    cylinder.vertex(0, cylinderHeight, 0);
-  }
+  //on construit les vertices du sommet
+  baseCylinderConstr(x,y, cylinderHeight);
+  //on construit les vertices de la base
+  baseCylinderConstr(x, y, 0);
 
-  for (int b = 0; b < x.length; b++) {
-    cylinder.vertex(x[b], 0, y[b]);
-    if (b + 1 >= x.length) {
-      cylinder.vertex(x[0], 0, y[0]);
-    } else {
-      cylinder.vertex(x[b+1], 0, y[b+1]);
-    }
-    cylinder.vertex(0, 0, 0);
-  }
-
-  for (int c = 0; c < x.length; c++) {
-    cylinder.vertex(x[c], 0, y[c]);
-    cylinder.vertex(x[c], cylinderHeight, y[c]);
+  for (int j = 0; j < x.length; j++) {
+    cylinder.vertex(x[j], 0, y[j]);
+    cylinder.vertex(x[j], cylinderHeight, y[j]);
   }
   cylinder.endShape();
+}
+
+//relie les points du cercle de la base et du sommet du cylindre.
+void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight){
+  for (int i = 0; i < vertDotsX.length; ++i) {
+    cylinder.vertex(vertDotsX[i], cylHeight, vertDotsY[i]);
+    if (i + 1 >= vertDotsX.length) {
+      cylinder.vertex(vertDotsX[0], cylHeight, vertDotsY[0]);
+    } else {
+      cylinder.vertex(vertDotsX[i+1], cylHeight, vertDotsY[i+1]);
+    }
+    cylinder.vertex(0, cylHeight, 0);
+  }
 }
 
 void draw() {
@@ -94,7 +92,7 @@ void draw() {
     boxSpawner();
     
     //cylinder
-    cylinderSpawner();
+    cylinderSpawner(cylinderHeight/2);
   
     //ball
     mover.update(); 
@@ -113,7 +111,7 @@ void draw() {
     mover.updateSHIFT();
 
     //cylinder
-    cylinderSpawner();
+    cylinderSpawner(0);
 
     //cf Cédric.
     float cylX = map(mouseX, 0, width, -(boxWidth/2 + abs(cameraDistance)*0.675),(boxWidth/2 + abs(cameraDistance)*0.675));
@@ -161,12 +159,12 @@ void boxSpawner(){
     box(boxWidth, boxThick, boxHeight);
   }
 
-//fonction qui affiche les cylindres sur le plateau (qu'importe le mode)
-void cylinderSpawner(){
+//fonction qui affiche les cylindres sur le plateau la valeur yOffset permet d'influencer le placement vertical des cylindres selon le mode.
+void cylinderSpawner(float yOffset){
     for (int i = 0; i < arrayCyl.size(); i++) {
       pushMatrix();
       cylinder.setFill(color(255, 204, 0));
-      translate(arrayCyl.get(i).x, -2*boxThick-cylinderHeight/2, arrayCyl.get(i).y);
+      translate(arrayCyl.get(i).x, -2*boxThick-yOffset, arrayCyl.get(i).y);
       shape(cylinder);
       popMatrix();
     }

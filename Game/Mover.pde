@@ -13,10 +13,10 @@ final static float mu = 0.2; //ceci représente le coefficient de frottement du 
 final static float normalForce = 1;
 final static float BLACK = 0;
 final static float threshold = (1.5*PI*gravityConstant)/(1+mu); //j'ai mis PI juste pour la beauté de la chose (et parce que 3 était apparament un bon facteur) 
-//ATTENTION ! Trouver le bon threshold est compliqué et est fortement dépendant de la gravity constant ainsi que du mu. 1.5*PI* gravityconstant/(1+mu)
+//ATTENTION ! Trouver le bon threshold est compliqué et est fortement dépendant de la gravityConstant ainsi que du mu. 1.5*PI*gravityConstant/(1+mu)
 // se trouve être un bon threshold pour les valeurs de 0.81 pour la gravité et 0.2 pour mu. Une fonction donnant automatiquement le threshold
-//idéal en fonction de mu et gravityConstant exite probablement, mais après quelque tentatives de recherches empiriques, j'ai abandonné.
-//en gros une telle fontion devrait être proportionnel à la gravityConstante, et être inversement proportionnel à 1+mu.
+//idéal en fonction de mu et gravityConstant existe probablement, mais après quelques tentatives de recherches empiriques, j'ai abandonné.
+//  en gros une telle fontion devrait être proportionnel à la gravityConstante, et être inversement proportionnel à 1+mu.
 
 class Mover {
 
@@ -129,7 +129,7 @@ class Mover {
       case DOWN: return (gravity >= 0);
       case LEFT: return (gravity < 0);
       case RIGHT: return (gravity >= 0);
-      default:  println("default yeah"); return false;
+      default: return false;
     }
   }
   
