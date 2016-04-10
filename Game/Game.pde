@@ -91,15 +91,16 @@ void draw() {
     //box
     boxSpawner();
 
-    //cylinder
+    //cylindres
     cylinderSpawner(cylinderHeight/2);
 
     //ball
     mover.update(); 
     mover.display(boxColor);
   }
-  //SHIFT
+  //SHIFT MODE
   else if (shiftKeyPressed) {
+    //la caméra est cette fois ci fixée au sommet du plateau
     float cameraDistance = -height*2;
     camera(width/2, cameraDistance, 1, width/2, height/2, 0, 0, 1, 0);
     translate(width/2, height/2, 0);
@@ -110,7 +111,7 @@ void draw() {
     //ball
     mover.updateSHIFT();
 
-    //cylinder
+    //cylindres
     cylinderSpawner(0);
 
     //cf Cédric.
@@ -134,8 +135,9 @@ void draw() {
 }
 
 //fonction qui s'occupe de tourner le plateau sur l'axe des X et des Y en fonction de l'utilisation de la souris en mode "CLICK"
+//puis de sauvegarder cette inclinaison lorsqu'il n'y a pas de clicks
 void rotationGestion() {
-  if (mousePressed == true) {
+  if (mousePressed) {
     float rz = map(mouseX - constrain(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
     float rx = map(mouseY - constrain(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
     angleX = constrain(rx + rxImmobile, -PI/3, PI/3);
@@ -159,7 +161,7 @@ void boxSpawner() {
   box(boxWidth, boxThick, boxHeight);
 }
 
-//fonction qui affiche les cylindres sur le plateau la valeur yOffset permet d'influencer le placement vertical des cylindres selon le mode.
+//fonction qui affiche les cylindres sur le plateau. la valeur yOffset permet d'influencer le placement vertical des cylindres selon le mode.
 void cylinderSpawner(float yOffset) {
   for (int i = 0; i < arrayCyl.size(); i++) {
     pushMatrix();
@@ -170,6 +172,7 @@ void cylinderSpawner(float yOffset) {
   }
 }
 
+//On gère ici la speed du plateau.
 void mouseWheel(MouseEvent event) {
   float wheelCount = event.getCount();
   speed = constrain(speed * map(wheelCount*30, -100, 100, 0.2, 1.5), 0.2, 1.5);

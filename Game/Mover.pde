@@ -60,7 +60,9 @@ class Mover {
     //appliquer la velocité à la position 
     location.add(velocity);
   }
-
+  
+  
+  //cette fonction implémente aussi un physique d'arrêt lorsque la balle atteint une vélocité trop faible dans les bords. 
   void checkEdges() {
     int downBall = floor(location.z + ballRadius)+1;
     int rightBall = floor(location.x + ballRadius)+1;
@@ -70,7 +72,6 @@ class Mover {
     //check bord du bas
     if ( downBall >= boxHeight/2) {
       if (isStopped(velocity.z, veloThreshold.z)) {
-        //println("stoppedDOWN");
         if (facingToward(gravityForce.z, direction.DOWN)) {
           velocity.z = 0;
         }
@@ -82,7 +83,6 @@ class Mover {
     //check bord du haut
     if ( upBall <= -boxHeight/2) {
       if (isStopped(velocity.z, veloThreshold.z)) {
-        //println("stoppedUP");
         if (facingToward(gravityForce.z, direction.UP)) {
           velocity.z = 0;
         }
@@ -91,10 +91,9 @@ class Mover {
       }
     }
 
-    //threshold pas suffisant dans les x ?????
+    //check bord droit
     if (rightBall >= boxWidth/2) {
       if (isStopped(velocity.x, veloThreshold.x)) {
-        //println("stoppedRIGHT");
         if (facingToward(gravityForce.x, direction.RIGHT)) {
           velocity.x = 0;
         }
@@ -107,7 +106,6 @@ class Mover {
     if (leftBall <= -boxWidth/2) {
       if (isStopped(velocity.x, veloThreshold.x)) {
         if (facingToward(gravityForce.x, direction.LEFT)) {
-          //println("stoppedLEFT");
           velocity.x = 0;
         }
       } else {
@@ -153,6 +151,7 @@ class Mover {
     sphere(ballRadius);
   }
 
+  //s'occupe de modifier la vélocité de la balle selon si il y a collision avec un cylindre ou pas.
   void checkCylinderCollision() {
     PVector twoDlocation = new PVector(location.x, location.z);
     for (int i = 0; i < arrayCyl.size(); i++) {
