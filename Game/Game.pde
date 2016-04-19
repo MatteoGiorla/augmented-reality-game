@@ -89,9 +89,31 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
 void drawData() { 
   dataGraphics.beginDraw();
   dataGraphics.background(255, 200, 125);
+  
+  //top view of the plane as a 2D blue box.
+  dataGraphics.stroke(0);
+  dataGraphics.fill(150, 150, 255);
   dataGraphics.rect(offset, offset, dataBoxSide, dataBoxSide);
-  dataGraphics.fill(100, 100, 255);
+  //puting the coordinate system to the center of blue box
+  float dataBallX = map(mover.location.x,-boxWidth/2, boxHeight/2, offset, dataBoxSide+offset);
+  float dataBallY = map(mover.location.z,-boxHeight/2, boxHeight/2, offset, dataBoxSide+offset);
+  float dataRadius = map(2*ballRadius, 0, boxHeight, 0, dataBoxSide);
+  dataGraphics.fill(241,54,26);
+  dataGraphics.noStroke();
+  dataGraphics.ellipse(dataBallX, dataBallY, dataRadius, dataRadius);
+  for(int i = 0; i < arrayCyl.size(); ++i){
+    drawDataCyl(i);
+  }
   dataGraphics.endDraw();
+}
+
+void drawDataCyl(int cylNumber){
+  float dataCylX = map(arrayCyl.get(cylNumber).x,-boxWidth/2, boxHeight/2, offset, dataBoxSide+offset);
+  float dataCylY = map(arrayCyl.get(cylNumber).y,-boxHeight/2, boxHeight/2, offset, dataBoxSide+offset);
+  float dataCylR = map(cylinderBaseSize*2, 0, boxHeight, 0, dataBoxSide);
+  dataGraphics.fill(243);
+  dataGraphics.ellipse(dataCylX, dataCylY, dataCylR, dataCylR);
+  
 }
 
 void draw() {
