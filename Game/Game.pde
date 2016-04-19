@@ -20,6 +20,10 @@ static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
 //classe qui s'occupe de la balle
 Mover mover = new Mover();
 
+
+//variables de la fenêtre des datas.
+PGraphics dataGraphics;
+
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
 static ArrayList<PVector> arrayCyl = new ArrayList(); 
@@ -60,6 +64,9 @@ void setup () {
     cylinder.vertex(x[j], cylinderHeight, y[j]);
   }
   cylinder.endShape();
+
+  //initialisation de la fenêtre des scores et autres donnnées de visualtion méta
+  dataGraphics = createGraphics(width, height, P2D);
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -75,10 +82,30 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
   }
 }
 
+void drawData() {
+  
+  final int dataHeight = height/4;
+  final int dataWidth = width;
+  final float offset = dataHeight/9;
+  final float dataBoxSide = dataHeight - 2*offset; 
+  dataGraphics.beginDraw();
+  dataGraphics.background(255, 200, 125);
+  dataGraphics.rect(offset,offset, dataBoxSide, dataBoxSide);
+  dataGraphics.fill(100,100,255);
+  dataGraphics.endDraw();
+}
+
 void draw() {
   background(235);
   directionalLight(50, 100, 125, 0, 1, 0);
   ambientLight(102, 102, 102);
+
+  pushMatrix();
+  drawData();
+  //MAGIC NUMBER; MON AMOUUUUUUUUUUUR
+  translate(0, 0, depth-606);
+  image(dataGraphics, 0, 3*height/4);
+  popMatrix();
 
   if (!shiftKeyPressed) {
     //on fixe la caméra en face du plateau puis on déplace le plateau correctement au centre de la fenêtre.
