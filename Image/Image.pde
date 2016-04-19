@@ -43,7 +43,8 @@ void draw() {
     }
   }
   
-  image(result, 0, 0); 
+  //image(result, 0, 0); 
+  image(convolute(img), 0, 0); 
   thresholdBar1.display();
   thresholdBar2.display();
   thresholdBar1.update();
@@ -53,19 +54,27 @@ void draw() {
 PImage convolute(PImage img) {
   float[][] kernel = {{0,0,0}, {0,2,0}, {0,0,0}};
   float N = 3; // kernel size
-  float wheight = 1.f;
+  float weight = 1.f;
   // create a greyscale image (type: ALPHA) for output
   PImage result = createImage(img.width, img.height, ALPHA); 
   for (int x = 0; x < img.width; x++) {
     for (int y = 0; y < img.height; y++) {
       // multiply intensities for pixels in the range
-      int a = x - N/2; 
-      int b = y - N/2; 
+      float res = 0; 
+      int a = x - (int)N/2; 
+      int b = y - (int)N/2; 
       while(a <= (x + N/2)) {
         while(b <= (y + N/2)) {
-          //img.get(a,b) -- resté ici!!!!!!!!!!
-      //result.pixels[y * img.widht + x] = 
+          res += brightness(img.get(a,b)) * weight;
+      //result.pixels[y * img.widht + x] =
+      b += 1; 
+    }
+    a += 1; 
+  }
+  res = res / weight;
+  result.pixels[y * img.width + x] = color(res);
     }
   }
+  
   return result; 
 } 
