@@ -1,5 +1,5 @@
-static int windowHeight = 1250;
-static int windowWidth = 700;
+static int windowHeight = 700;
+static int windowWidth = 1250;
 
 //variable de la caméra.
 static float depth = 2000;
@@ -13,7 +13,7 @@ static float angleX = 0.0;
 static float angleZ = 0.0;
 static float speed = 1.0;
 static final float boxColor = 255;
-static final float boxWidth = 1500; // valeur qui sé'tend sur l'axe des x
+static final float boxWidth = 1500; // valeur qui s'étend sur l'axe des x
 static final float boxThick =  50; // valeur qui s'étend sur l'axe des y
 static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
 
@@ -23,6 +23,10 @@ Mover mover = new Mover();
 
 //variables de la fenêtre des datas.
 PGraphics dataGraphics;
+final int dataHeight = windowHeight/4;
+final int dataWidth = windowWidth;
+final float offset = dataHeight/9;
+final float dataBoxSide = dataHeight - 2*offset;
 
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
@@ -36,7 +40,7 @@ static PShape cylinder = new PShape();
 static boolean cylinderKeyPressed = false; 
 
 void settings() {
-  size(windowHeight, windowWidth, P3D);
+  size(windowWidth, windowHeight, P3D);
 }
 
 void setup () {
@@ -66,7 +70,7 @@ void setup () {
   cylinder.endShape();
 
   //initialisation de la fenêtre des scores et autres donnnées de visualtion méta
-  dataGraphics = createGraphics(width, height, P2D);
+  dataGraphics = createGraphics(dataWidth, dataHeight, P2D);
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -82,16 +86,11 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
   }
 }
 
-void drawData() {
-  
-  final int dataHeight = height/4;
-  final int dataWidth = width;
-  final float offset = dataHeight/9;
-  final float dataBoxSide = dataHeight - 2*offset; 
+void drawData() { 
   dataGraphics.beginDraw();
   dataGraphics.background(255, 200, 125);
-  dataGraphics.rect(offset,offset, dataBoxSide, dataBoxSide);
-  dataGraphics.fill(100,100,255);
+  dataGraphics.rect(offset, offset, dataBoxSide, dataBoxSide);
+  dataGraphics.fill(100, 100, 255);
   dataGraphics.endDraw();
 }
 
@@ -104,7 +103,7 @@ void draw() {
   drawData();
   //MAGIC NUMBER; MON AMOUUUUUUUUUUUR
   translate(0, 0, depth-606);
-  image(dataGraphics, 0, 3*height/4);
+  image(dataGraphics, 0, 3*dataHeight);
   popMatrix();
 
   if (!shiftKeyPressed) {
