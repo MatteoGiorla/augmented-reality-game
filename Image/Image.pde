@@ -43,34 +43,51 @@ void draw() {
     }
   }
   
-  //image(result, 0, 0); 
-  image(convolute(img), 0, 0); 
+  //image(result, 0, 0); //première partie 
+  
+  image(sobel(img), 0, 0); 
   thresholdBar1.display();
   thresholdBar2.display();
   thresholdBar1.update();
   thresholdBar2.update();
 }
 
-PImage convolute(PImage img) {
-  float[][] kernel = {{0,0,0}, {0,2,0}, {0,0,0}};
+PImage convolute(PImage img, float[][] kernel) { // pas certain de cette méthode.
+  //float[][] kernel = {{0,1,0}, {0,0,0}, {0,-1,0}};
   float N = 3; // kernel size
   float weight = 1.f;
   // create a greyscale image (type: ALPHA) for output
+  float res = 0; 
   PImage result = createImage(img.width, img.height, ALPHA); 
-  for (int x = 0; x < img.width; x++) {
-    for (int y = 0; y < img.height; y++) {
+  for (int x = 1; x < img.width - 1; x++) {
+    for (int y = 1; y < img.height - 1; y++) {
       // multiply intensities for pixels in the range
-      float res = 0; 
+      /*float res = 0; 
       int a = x - (int)N/2; 
-      int b = y - (int)N/2; 
+      //int b = y - (int)N/2; 
+      int li = 0; 
       while(a <= (x + N/2)) {
+        int b = y - (int)N/2; 
+        int col = 0; 
         while(b <= (y + N/2)) {
-          res += brightness(img.get(a,b)) * weight;
+          res += brightness(img.get(a,b)) * kernel[li][col];
       //result.pixels[y * img.widht + x] =
       b += 1; 
+      col += 1;
     }
     a += 1; 
+    li += 1; 
+  }*/
+  int li = 0; 
+  for (int a = (x - (int)N/2); a <= (x + (int)N/2); a++) {
+    int col = 0; 
+    for (int b = (y - (int)N/2); b <= (y + (int)N/2); b++) {
+      res += brightness(img.get(a,b)) * kernel[li][col];
+      col += 1; 
+    }
+    li += 1; 
   }
+    
   res = res / weight;
   result.pixels[y * img.width + x] = color(res);
     }
@@ -78,3 +95,32 @@ PImage convolute(PImage img) {
   
   return result; 
 } 
+
+PImage sobel(PImage img) {
+  float[][] hKernel= {{0,1,0}, {0,0,0},{0,-1,0}};
+  float[][] vKernel= {{0,0,0}, {1,0,-1}, {0,0,0}}; 
+  PImage result = createImage(img.width, img.height, ALPHA); 
+  
+  // clear the image
+  for (int i = 0; i < img.width * img.height; i++) {
+    result.pixels[i] = color(0); // noir
+  }
+  
+  float max = 0; 
+  float [] buffer = new float[img.width * img.height];
+  
+  // implement here the double convolution
+  PImage inter = convolute(result, hKernel);
+  result = convolute(inter, vKernel); 
+  
+  for (int y = 2; y < img.height - 2; y++) {
+    for (int x = 2; x < img.width - 2; x++) {
+      if(buffer[y * img.width + x] > (int)(max * 0.3f)) {
+        result.pixels[y * img.width + x] = color(255); 
+      } else { 
+        result.pixels[y * img.width + x] = color(0); 
+      }
+    }
+  }
+  return result; 
+}
