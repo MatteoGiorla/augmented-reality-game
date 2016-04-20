@@ -20,17 +20,9 @@ static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
 //classe qui s'occupe de la balle
 Mover mover = new Mover();
 
+//classe qui s'occupe du HUD (menu en bas) prend comme argument , la partition vertical de l'écran voulu, et la Hieght et Width de la fenêtre principale.
+HUD hud = new HUD(5, windowWidth, windowHeight);
 
-//variables de la fenêtre des datas.
-PGraphics dataGraphics;
-
-//le data fraction dit sur quel 1/datatfraction on veut faire apparatîre notre Hud
-final int dataFraction = 5;
-final int dataHeight = windowHeight/dataFraction;
-final int dataWidth = windowWidth;
-final float offset = dataHeight/9;
-final float dataBoxSide = dataHeight - 2*offset;
-PGraphics textGraphics;
 
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
@@ -72,11 +64,9 @@ void setup () {
     cylinder.vertex(x[j], cylinderHeight, y[j]);
   }
   cylinder.endShape();
-
-  //initialisation de la fenêtre des scores et autres donnnées de visualtion méta
-  dataGraphics = createGraphics(dataWidth, dataHeight, P2D);
-  textGraphics = createGraphics(dataWidth/7, dataHeight-(int)offset, P2D);
   
+  //appelation du setup du HUD pour définir les différentes surfaces de dessin.
+  hud.setup();
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -92,64 +82,16 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
   }
 }
 
-void drawData() { 
-  dataGraphics.beginDraw();
-  color c = color(255, 204, 0);
-  dataGraphics.background(c);
-  
-  //top view of the plane as a 2D blue box.
-  dataGraphics.stroke(0);
-  dataGraphics.fill(150, 150, 255);
-  dataGraphics.rect(offset, offset, dataBoxSide, dataBoxSide);
-  //puting the coordinate system to the center of blue box
-  float dataBallX = map(mover.location.x,-boxWidth/2, boxHeight/2, offset, dataBoxSide+offset);
-  float dataBallY = map(mover.location.z,-boxHeight/2, boxHeight/2, offset, dataBoxSide+offset);
-  float dataRadius = map(2*ballRadius, 0, boxHeight, 0, dataBoxSide);
-  dataGraphics.fill(241,54,26);
-  dataGraphics.noStroke();
-  dataGraphics.ellipse(dataBallX, dataBallY, dataRadius, dataRadius);
-  for(int i = 0; i < arrayCyl.size(); ++i){
-    drawDataCyl(i);
-  }  
-  dataGraphics.endDraw();
-}
-
-//TODO : écrire le score et dessiner la bordure en blanc
-void drawScore(){
-  textGraphics.beginDraw();
-  color c = color(255, 255, 0);
-  textGraphics.background(c);
-  textGraphics.stroke(245);
-  textGraphics.textSize(12);
-  textGraphics.fill(12);
-  textGraphics.text("Score: "+mover.score, 10, 30);
-  textGraphics.endDraw();
-}
-
-void drawDataCyl(int cylNumber){
-  float dataCylX = map(arrayCyl.get(cylNumber).x,-boxWidth/2, boxHeight/2, offset, dataBoxSide+offset);
-  float dataCylY = map(arrayCyl.get(cylNumber).y,-boxHeight/2, boxHeight/2, offset, dataBoxSide+offset);
-  float dataCylR = map(cylinderBaseSize*2, 0, boxHeight, 0, dataBoxSide);
-  dataGraphics.fill(243);
-  dataGraphics.ellipse(dataCylX, dataCylY, dataCylR, dataCylR);
-  
-}
 
 void draw() {
+  
   background(235);
+  //HUD DRAWING
+  hud.drawHUD(arrayCyl, mover);
+  
+  //putting light
   directionalLight(50, 100, 125, 0, 1, 0);
   ambientLight(102, 102, 102);
-  
-  
-  //HUD DRAWING PROFESSIONAL.
-  pushMatrix();
-  drawData();
-  drawScore();
-  //MAGIC NUMBER; MON AMOUUUUUUUUUUUR
-  translate(0, 0, depth-606);
-  image(dataGraphics, 0, (dataFraction -1)*dataHeight);
-  image(textGraphics, 2*offset + dataBoxSide, (dataFraction -1 )*dataHeight+offset/2);
-  popMatrix();
 
   if (!shiftKeyPressed) {
     //on fixe la caméra en face du plateau puis on déplace le plateau correctement au centre de la fenêtre.
@@ -161,7 +103,7 @@ void draw() {
 
     //box
     boxSpawner();
-
+    
     //cylindres
     cylinderSpawner(cylinderHeight/2);
 
