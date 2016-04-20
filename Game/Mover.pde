@@ -26,6 +26,7 @@ class Mover {
   float frictionMagnitude;
   PVector location;
   PVector veloThreshold;
+  float score;
 
   Mover() {
     gravityForce = new PVector(0, 0, 0);
@@ -33,8 +34,9 @@ class Mover {
     location = new PVector(0, -(ballRadius + Game.boxThick/2), 0); // position de base pour que la sphère soit sur le plateau.
     friction = new PVector(0, 0, 0);
     frictionMagnitude = normalForce * mu;
-
     veloThreshold = new PVector(threshold, 0.0, threshold);
+    //whenever the ball hit a cylinder, ++score, when hitting and edge, --score
+    score = 0;
   }
 
 
@@ -77,6 +79,7 @@ class Mover {
         }
       } else {
         velocity.z = -velocity.z;
+        score -= abs(velocity.z);
       }
     }
 
@@ -88,6 +91,7 @@ class Mover {
         }
       } else {
         velocity.z = -velocity.z;
+        score -= abs(velocity.z);
       }
     }
 
@@ -99,6 +103,7 @@ class Mover {
         }
       } else {
         velocity.x = -velocity.x;
+        score -= abs(velocity.x);
       }
     }
 
@@ -110,6 +115,7 @@ class Mover {
         }
       } else {
         velocity.x = -velocity.x;
+        score -= abs(velocity.x);
       }
     }
   }
@@ -160,8 +166,8 @@ class Mover {
         PVector velocity2D = new PVector(velocity.x, velocity.z);
         PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y).normalize();
         PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl))*(2.0)));
-
         velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
+        score += sqrt(abs(newVelocity.x*newVelocity.y));
       }
     }
   }

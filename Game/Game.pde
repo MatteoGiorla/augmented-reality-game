@@ -23,10 +23,14 @@ Mover mover = new Mover();
 
 //variables de la fenêtre des datas.
 PGraphics dataGraphics;
-final int dataHeight = windowHeight/4;
+
+//le data fraction dit sur quel 1/datatfraction on veut faire apparatîre notre Hud
+final int dataFraction = 5;
+final int dataHeight = windowHeight/dataFraction;
 final int dataWidth = windowWidth;
 final float offset = dataHeight/9;
 final float dataBoxSide = dataHeight - 2*offset;
+PGraphics textGraphics;
 
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
@@ -71,6 +75,8 @@ void setup () {
 
   //initialisation de la fenêtre des scores et autres donnnées de visualtion méta
   dataGraphics = createGraphics(dataWidth, dataHeight, P2D);
+  textGraphics = createGraphics(dataWidth/7, dataHeight-(int)offset, P2D);
+  
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -88,7 +94,8 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
 
 void drawData() { 
   dataGraphics.beginDraw();
-  dataGraphics.background(255, 200, 125);
+  color c = color(255, 204, 0);
+  dataGraphics.background(c);
   
   //top view of the plane as a 2D blue box.
   dataGraphics.stroke(0);
@@ -103,8 +110,20 @@ void drawData() {
   dataGraphics.ellipse(dataBallX, dataBallY, dataRadius, dataRadius);
   for(int i = 0; i < arrayCyl.size(); ++i){
     drawDataCyl(i);
-  }
+  }  
   dataGraphics.endDraw();
+}
+
+//TODO : écrire le score et dessiner la bordure en blanc
+void drawScore(){
+  textGraphics.beginDraw();
+  color c = color(255, 255, 0);
+  textGraphics.background(c);
+  textGraphics.stroke(245);
+  textGraphics.textSize(12);
+  textGraphics.fill(12);
+  textGraphics.text("Score: "+mover.score, 10, 30);
+  textGraphics.endDraw();
 }
 
 void drawDataCyl(int cylNumber){
@@ -120,12 +139,16 @@ void draw() {
   background(235);
   directionalLight(50, 100, 125, 0, 1, 0);
   ambientLight(102, 102, 102);
-
+  
+  
+  //HUD DRAWING PROFESSIONAL.
   pushMatrix();
   drawData();
+  drawScore();
   //MAGIC NUMBER; MON AMOUUUUUUUUUUUR
   translate(0, 0, depth-606);
-  image(dataGraphics, 0, 3*dataHeight);
+  image(dataGraphics, 0, (dataFraction -1)*dataHeight);
+  image(textGraphics, 2*offset + dataBoxSide, (dataFraction -1 )*dataHeight+offset/2);
   popMatrix();
 
   if (!shiftKeyPressed) {
