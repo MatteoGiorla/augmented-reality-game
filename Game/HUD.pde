@@ -6,6 +6,8 @@ class HUD {
   final int dataWidth;
   final float offset;
   final float dataBoxSide;
+  final int textWidth;
+  final int textHeight;
 
   /*déclaration des différents "canevas" à afficher sur l'HUD, dans l'ordre :
       -La fenètre globale du Hud avec son plateau 2D
@@ -20,12 +22,14 @@ class HUD {
     dataWidth = windowWidth;
     offset = dataHeight/9;
     dataBoxSide = dataHeight - 2*offset;
+    textWidth = dataWidth/8;
+    textHeight = dataHeight-(int)offset;
   }
 
   void setup() {
     //initialisation de la fenêtre des scores et autres donnnées de visualtion méta
     dataGraphics = createGraphics(dataWidth, dataHeight, P2D);
-    textGraphics = createGraphics(dataWidth/7, dataHeight-(int)offset, P2D);
+    textGraphics = createGraphics(textWidth, textHeight, P2D);
   }
 
 
@@ -33,7 +37,7 @@ class HUD {
     //HUD DRAWING PROFESSIONAL.
     pushMatrix();
     drawData(arrayCyl, ball.location);
-    drawScore(ball.score);
+    drawScore(ball.score, ball.point, ball.magnitude);
     //MAGIC NUMBER; MON AMOUUUUUUUUUUUR
     translate(0, 0, depth-606);
     image(dataGraphics, 0, (verticalPartition -1)*dataHeight);
@@ -43,12 +47,12 @@ class HUD {
 
   void drawData(ArrayList<PVector> arrayCylinders, PVector ballLocation) { 
     dataGraphics.beginDraw();
-    color c = color(255, 204, 0);
+    color c = color(230, 226, 175);
     dataGraphics.background(c);
 
     //top view of the plane as a 2D blue box.
     dataGraphics.stroke(0);
-    dataGraphics.fill(150, 150, 255);
+    dataGraphics.fill(6, 101, 130);
     dataGraphics.rect(offset, offset, dataBoxSide, dataBoxSide);
     
     //puting the coordinate system to the center of blue box and drawing the ball
@@ -70,14 +74,24 @@ class HUD {
     dataGraphics.endDraw();
   }
 
-  void drawScore(float score) {
+  void drawScore(float score, float point, float velocite) {
+    int cRadius = 10;
+    int bStroke = 3;
+    int textOffsetH = textHeight/6;
+    int textOffsetW = textWidth/8;
+    
     textGraphics.beginDraw();
-    color c = color(255, 255, 0);
-    textGraphics.background(c);
-    textGraphics.stroke(245);
-    textGraphics.textSize(12);
-    textGraphics.fill(12);
-    textGraphics.text("Score: "+score, 10, 30);
+    //textGraphics.background(255);
+    textGraphics.noStroke();
+    textGraphics.fill(255);
+    textGraphics.rect(0, 0, textWidth,textHeight, cRadius, cRadius, cRadius, cRadius);
+    color c = color(230, 226, 175);
+    textGraphics.fill(c);
+    textGraphics.rect(bStroke, bStroke, textWidth-2*bStroke,textHeight-2*bStroke, cRadius, cRadius, cRadius, cRadius);
+    textGraphics.fill(0);
+    textGraphics.text("Score: "+score, textOffsetW, textOffsetH);
+    textGraphics.text("Velocity: "+velocite, textOffsetW, textOffsetH+textHeight/3);
+    textGraphics.text("Last Score: "+point, textOffsetW, textOffsetH+2*textHeight/3);
     textGraphics.endDraw();
   }
 }

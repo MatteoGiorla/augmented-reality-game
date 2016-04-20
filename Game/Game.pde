@@ -20,7 +20,7 @@ static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
 //classe qui s'occupe de la balle
 Mover mover = new Mover();
 
-//classe qui s'occupe du HUD (menu en bas) prend comme argument , la partition vertical de l'écran voulu, et la Hieght et Width de la fenêtre principale.
+//classe qui s'occupe du HUD (menu en bas) prend comme argument , la partition vertical de l'écran voulu, et la Height et Width de la fenêtre principale.
 HUD hud = new HUD(5, windowWidth, windowHeight);
 
 

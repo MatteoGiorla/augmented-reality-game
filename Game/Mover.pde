@@ -17,7 +17,6 @@ final static float threshold = (1.5*PI*gravityConstant)/(1+mu); //j'ai mis PI ju
 // se trouve être un bon threshold pour les valeurs de 0.81 pour la gravité et 0.2 pour mu. Une fonction donnant automatiquement le threshold
 //idéal en fonction de mu et gravityConstant existe probablement, mais après quelques tentatives de recherches empiriques, j'ai abandonné.
 //  en gros une telle fontion devrait être proportionnel à la gravityConstante, et être inversement proportionnel à 1+mu.
-
 class Mover {
 
   PVector gravityForce;
@@ -27,6 +26,8 @@ class Mover {
   PVector location;
   PVector veloThreshold;
   float score;
+  float point;
+  float magnitude;
 
   Mover() {
     gravityForce = new PVector(0, 0, 0);
@@ -37,6 +38,7 @@ class Mover {
     veloThreshold = new PVector(threshold, 0.0, threshold);
     //whenever the ball hit a cylinder, ++score, when hitting and edge, --score
     score = 0;
+    magnitude = 0;
   }
 
 
@@ -56,10 +58,14 @@ class Mover {
     velocity.add(friction);  
     velocity.add(gravityForce);
     //controle les collisions avec les cylindres et entre les bords
+    float previousPoint = point;
     checkEdges();
     checkCylinderCollision();
-
+    if(previousPoint != point){
+      score += point;
+    }
     //appliquer la velocité à la position 
+    magnitude = sqrt(velocity.x*velocity.x + velocity.y*velocity.y);
     location.add(velocity);
   }
   
@@ -79,7 +85,9 @@ class Mover {
         }
       } else {
         velocity.z = -velocity.z;
-        score -= abs(velocity.z);
+        
+        //pour les points
+        point = -abs(velocity.z);
       }
     }
 
@@ -91,7 +99,9 @@ class Mover {
         }
       } else {
         velocity.z = -velocity.z;
-        score -= abs(velocity.z);
+        
+        //pour les points
+        point = - abs(velocity.z);
       }
     }
 
@@ -103,7 +113,8 @@ class Mover {
         }
       } else {
         velocity.x = -velocity.x;
-        score -= abs(velocity.x);
+        //pour les points
+        point = -abs(velocity.x);
       }
     }
 
@@ -115,7 +126,7 @@ class Mover {
         }
       } else {
         velocity.x = -velocity.x;
-        score -= abs(velocity.x);
+        point = -abs(velocity.x);
       }
     }
   }
@@ -167,7 +178,7 @@ class Mover {
         PVector normalCyl = new PVector(location.x - arrayCyl.get(i).x, location.z - arrayCyl.get(i).y).normalize();
         PVector newVelocity = velocity2D.sub(normalCyl.mult((velocity2D.dot(normalCyl))*(2.0)));
         velocity = new PVector(newVelocity.x, 0.0, newVelocity.y);
-        score += sqrt(abs(newVelocity.x*newVelocity.y));
+        point = sqrt(newVelocity.x*newVelocity.x + newVelocity.y*newVelocity.y);
       }
     }
   }
