@@ -27,6 +27,7 @@ final int dataHeight = windowHeight/4;
 final int dataWidth = windowWidth;
 final float offset = dataHeight/9;
 final float dataBoxSide = dataHeight - 2*offset;
+static ArrayList<PVector> ballLocationHistory = new ArrayList(); 
 
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
@@ -88,19 +89,26 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
 
 void drawData() { 
   dataGraphics.beginDraw();
-  dataGraphics.background(255, 200, 125);
+  dataGraphics.background(10, 10, 10, 60);
   
   //top view of the plane as a 2D blue box.
   dataGraphics.stroke(0);
-  dataGraphics.fill(150, 150, 255);
+  dataGraphics.fill(120, 120, 220);
   dataGraphics.rect(offset, offset, dataBoxSide, dataBoxSide);
   //puting the coordinate system to the center of blue box
   float dataBallX = map(mover.location.x,-boxWidth/2, boxHeight/2, offset, dataBoxSide+offset);
   float dataBallY = map(mover.location.z,-boxHeight/2, boxHeight/2, offset, dataBoxSide+offset);
   float dataRadius = map(2*ballRadius, 0, boxHeight, 0, dataBoxSide);
-  dataGraphics.fill(241,54,26);
+  ballLocationHistory.add(new PVector(dataBallX, dataBallY));
+  for(int i=0; i<ballLocationHistory.size(); ++i) {
+    dataGraphics.fill(200,200,255, 10);
+    dataGraphics.noStroke();
+    dataGraphics.ellipse(ballLocationHistory.get(i).x, ballLocationHistory.get(i).y, dataRadius, dataRadius);
+  }
+  dataGraphics.fill(255,40,40);
   dataGraphics.noStroke();
   dataGraphics.ellipse(dataBallX, dataBallY, dataRadius, dataRadius);
+  
   for(int i = 0; i < arrayCyl.size(); ++i){
     drawDataCyl(i);
   }
