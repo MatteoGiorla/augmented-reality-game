@@ -8,10 +8,10 @@ class HUD {
   final float dataBoxSide;
   final int textWidth;
   final int textHeight;
-
+  ArrayList<PVector> ballLocationHistory; 
   /*déclaration des différents "canevas" à afficher sur l'HUD, dans l'ordre :
-      -La fenètre globale du Hud avec son plateau 2D
-      -la boite des données textuelles (score etc...)
+   -La fenètre globale du Hud avec son plateau 2D
+   -la boite des données textuelles (score etc...)
    */
   PGraphics dataGraphics;
   PGraphics textGraphics;
@@ -24,6 +24,7 @@ class HUD {
     dataBoxSide = dataHeight - 2*offset;
     textWidth = dataWidth/8;
     textHeight = dataHeight-(int)offset;
+    ballLocationHistory = new ArrayList();
   }
 
   void setup() {
@@ -54,21 +55,28 @@ class HUD {
     dataGraphics.stroke(0);
     dataGraphics.fill(6, 101, 130);
     dataGraphics.rect(offset, offset, dataBoxSide, dataBoxSide);
-    
+
     //puting the coordinate system to the center of blue box and drawing the ball
     float dataBallX = map(ballLocation.x, -boxWidth/2, boxHeight/2, offset, dataBoxSide+offset);
     float dataBallY = map(ballLocation.z, -boxHeight/2, boxHeight/2, offset, dataBoxSide+offset);
-    float dataRadius = map(2*ballRadius, 0, boxHeight, 0, dataBoxSide);
+    float dataRadius = map(2*ballRadius, 0, boxHeight, 0, dataBoxSide); 
+    ballLocationHistory.add(new PVector(dataBallX, dataBallY));
+    for (int i=0; i<ballLocationHistory.size(); ++i) {
+      dataGraphics.fill(200, 200, 255, 10);
+      dataGraphics.noStroke();
+      dataGraphics.ellipse(ballLocationHistory.get(i).x, ballLocationHistory.get(i).y, dataRadius, dataRadius);
+    }
     dataGraphics.fill(241, 54, 26);
     dataGraphics.noStroke();
     dataGraphics.ellipse(dataBallX, dataBallY, dataRadius, dataRadius);
     
     //drawing the cylinders.
+    dataGraphics.stroke(9);
     for (int i = 0; i < arrayCylinders.size(); ++i) {
       float dataCylX = map(arrayCylinders.get(i).x, -boxWidth/2, boxHeight/2, offset, dataBoxSide+offset);
       float dataCylY = map(arrayCylinders.get(i).y, -boxHeight/2, boxHeight/2, offset, dataBoxSide+offset);
       float dataCylR = map(cylinderBaseSize*2, 0, boxHeight, 0, dataBoxSide);
-      dataGraphics.fill(243);
+      dataGraphics.fill(255,255,0);
       dataGraphics.ellipse(dataCylX, dataCylY, dataCylR, dataCylR);
     }  
     dataGraphics.endDraw();
@@ -79,15 +87,15 @@ class HUD {
     int bStroke = 3;
     int textOffsetH = textHeight/6;
     int textOffsetW = textWidth/8;
-    
+
     textGraphics.beginDraw();
     //textGraphics.background(255);
     textGraphics.noStroke();
     textGraphics.fill(255);
-    textGraphics.rect(0, 0, textWidth,textHeight, cRadius, cRadius, cRadius, cRadius);
+    textGraphics.rect(0, 0, textWidth, textHeight, cRadius, cRadius, cRadius, cRadius);
     color c = color(230, 226, 175);
     textGraphics.fill(c);
-    textGraphics.rect(bStroke, bStroke, textWidth-2*bStroke,textHeight-2*bStroke, cRadius, cRadius, cRadius, cRadius);
+    textGraphics.rect(bStroke, bStroke, textWidth-2*bStroke, textHeight-2*bStroke, cRadius, cRadius, cRadius, cRadius);
     textGraphics.fill(0);
     textGraphics.text("Score: "+score, textOffsetW, textOffsetH);
     textGraphics.text("Velocity: "+velocite, textOffsetW, textOffsetH+textHeight/3);

@@ -23,7 +23,6 @@ Mover mover = new Mover();
 //classe qui s'occupe du HUD (menu en bas) prend comme argument , la partition vertical de l'écran voulu, et la Height et Width de la fenêtre principale.
 HUD hud = new HUD(5, windowWidth, windowHeight);
 
-
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
 static ArrayList<PVector> arrayCyl = new ArrayList(); 
@@ -81,7 +80,6 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
     cylinder.vertex(0, cylHeight, 0);
   }
 }
-
 
 void draw() {
   
