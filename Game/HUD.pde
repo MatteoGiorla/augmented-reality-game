@@ -12,6 +12,8 @@ class HUD {
   ArrayList<PVector> ballLocationHistory;
   int miniBox = 5;
   final int miniOffset = 1;
+  final color blue = color(6, 101, 130);
+  final color red = color(238,0,0);
   /*déclaration des différents "canevas" à afficher sur l'HUD, dans l'ordre :
    -La fenètre globale du Hud avec son plateau 2D
    -la boite des données textuelles (score etc...)
@@ -34,11 +36,6 @@ class HUD {
     barHeight = dataHeight- (int)(2.5*offset);
     ballLocationHistory = new ArrayList();
     scoreChart = new ArrayList<Integer>();
-    scoreChart.add(1);
-    scoreChart.add(2);
-    scoreChart.add(3);
-    scoreChart.add(21);
-    
   }
 
   void setup() {
@@ -120,19 +117,16 @@ class HUD {
   }
   
   void addABar(float score){
-    int toAdd = (int)map(score, -1000, 1000, -21, 21);
-    if(toAdd > 0){
-      scoreChart.add(toAdd);
-      println(toAdd);
-    }
+    int toAdd = (int)map(score, -500, 500, -MAX_BAR_CHART, MAX_BAR_CHART);
+    scoreChart.add(toAdd);
+    println(toAdd);
   }
   
-  
   //va s'occuper de faire apparaître une bar à l'endroit locaX indiqué.
-  void displayTower(int nmbrBox, int locaX, int boxWidth, int offset){
+  void displayTower(int nmbrBox, int locaX, int boxWidth, int offset, color c){
     int x = (locaX)*(miniBox+offset);
     for(int j = 1; j <= nmbrBox; ++j){
-      barChartGraphics.fill(6, 101, 130);
+      barChartGraphics.fill(c);
       barChartGraphics.noStroke();
       barChartGraphics.rect(x, barHeight-(j*(boxWidth+offset)) , boxWidth, miniBox);
     }
@@ -142,7 +136,11 @@ class HUD {
     barChartGraphics.beginDraw();
     barChartGraphics.background(255, 255, 175);
     for(int i = 0; i < scoreChart.size(); ++i){
-      displayTower(scoreChart.get(i), i, miniBox, miniOffset);
+      if(scoreChart.get(i) > 0){
+        displayTower(scoreChart.get(i), i, miniBox, miniOffset, blue);
+      }else{
+        displayTower(abs(scoreChart.get(i)), i, miniBox, miniOffset, red);
+      }
     }
     barChartGraphics.endDraw();
   }
