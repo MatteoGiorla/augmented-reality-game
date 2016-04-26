@@ -23,6 +23,10 @@ Mover mover = new Mover();
 //classe qui s'occupe du HUD (menu en bas) prend comme argument , la partition vertical de l'écran voulu, et la Height et Width de la fenêtre principale.
 HUD hud = new HUD(5, windowWidth, windowHeight);
 
+static final int scrollBarHeight = 10;
+static final int scrollBarWidth = 300;
+HScrollbar scrollBar = new HScrollbar(windowWidth/4, windowHeight - (hud.offset + scrollBarHeight/2), scrollBarWidth, scrollBarHeight);
+
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
 static ArrayList<PVector> arrayCyl = new ArrayList(); 
@@ -66,6 +70,8 @@ void setup () {
   
   //appelation du setup du HUD pour définir les différentes surfaces de dessin.
   hud.setup();
+  
+
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -85,7 +91,7 @@ void draw() {
   
   background(235);
   //HUD DRAWING
-  hud.drawHUD(arrayCyl, mover);
+  hud.drawHUD(arrayCyl, mover, scrollBar);
   
   //putting light
   directionalLight(50, 100, 125, 0, 1, 0);
@@ -143,12 +149,14 @@ void draw() {
       cylinderKeyPressed = false;
     }
   }
+  
+  
 }
 
 //fonction qui s'occupe de tourner le plateau sur l'axe des X et des Y en fonction de l'utilisation de la souris en mode "CLICK"
 //puis de sauvegarder cette inclinaison lorsqu'il n'y a pas de clicks
 void rotationGestion() {
-  if (mousePressed) {
+  if (mousePressed && mouseY < (windowHeight - hud.dataHeight)) {
     float rz = map(mouseX - constrain(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
     float rx = map(mouseY - constrain(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
     angleX = constrain(rx + rxImmobile, -PI/3, PI/3);

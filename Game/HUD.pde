@@ -10,11 +10,13 @@ class HUD {
   final int textHeight;
   ArrayList<PVector> ballLocationHistory; 
   /*déclaration des différents "canevas" à afficher sur l'HUD, dans l'ordre :
-   -La fenètre globale du Hud avec son plateau 2D
+   -La fenêtre globale du Hud avec son plateau 2D
    -la boite des données textuelles (score etc...)
    */
   PGraphics dataGraphics;
   PGraphics textGraphics;
+  
+
 
   HUD(int verticalPartition, int windowWidth, int windowHeight) {
     this.verticalPartition = verticalPartition;
@@ -34,8 +36,9 @@ class HUD {
   }
 
 
-  void drawHUD(ArrayList<PVector> arrayCyl, Mover ball) {
+  void drawHUD(ArrayList<PVector> arrayCyl, Mover ball, HScrollbar scrollBar) {
     //HUD DRAWING PROFESSIONAL.
+    scrollBar.update();
     pushMatrix();
     drawData(arrayCyl, ball.location);
     drawScore(ball.score, ball.point, ball.magnitude);
@@ -43,6 +46,7 @@ class HUD {
     translate(0, 0, depth-606);
     image(dataGraphics, 0, (verticalPartition -1)*dataHeight);
     image(textGraphics, 2*offset + dataBoxSide, (verticalPartition -1 )*dataHeight+offset/2);
+    scrollBar.display();
     popMatrix();
   }
 
@@ -84,7 +88,7 @@ class HUD {
 
   void drawScore(float score, float point, float velocite) {
     int cRadius = 10;
-    int bStroke = 3;
+    int bStroke = 1;
     int textOffsetH = textHeight/6;
     int textOffsetW = textWidth/8;
 
@@ -97,9 +101,9 @@ class HUD {
     textGraphics.fill(c);
     textGraphics.rect(bStroke, bStroke, textWidth-2*bStroke, textHeight-2*bStroke, cRadius, cRadius, cRadius, cRadius);
     textGraphics.fill(0);
-    textGraphics.text("Score: "+score, textOffsetW, textOffsetH);
-    textGraphics.text("Velocity: "+velocite, textOffsetW, textOffsetH+textHeight/3);
-    textGraphics.text("Last Score: "+point, textOffsetW, textOffsetH+2*textHeight/3);
+    textGraphics.text("Score: \n" + score, textOffsetW, textOffsetH);
+    textGraphics.text("Velocity: \n" + velocite, textOffsetW, textOffsetH + textHeight/3);
+    textGraphics.text("Last Score: \n" + point, textOffsetW, textOffsetH+2*textHeight/3);
     textGraphics.endDraw();
   }
 }
