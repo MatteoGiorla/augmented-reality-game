@@ -44,9 +44,11 @@ void draw() {
   }
   
   //image(result, 0, 0); //première partie 
+  PImage finalImage = sobel(result); 
+  image(finalImage, 0,0); 
   //float[][] k = {{9,12,9},{12,15,12},{9,12,9}}; 
-  PImage res = sobel(img); 
-  image(res, 0, 0); 
+  //PImage res = sobel(img); 
+  //image(res, 0, 0); 
   thresholdBar1.display();
   thresholdBar2.display();
   thresholdBar1.update();
