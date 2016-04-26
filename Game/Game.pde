@@ -24,6 +24,10 @@ Mover mover = new Mover();
 //classe qui s'occupe du HUD (menu en bas) prend comme argument , la partition vertical de l'écran voulu, et la Height et Width de la fenêtre principale.
 HUD hud = new HUD(4, windowWidth, windowHeight);
 
+static final int scrollBarHeight = 10;
+static final int scrollBarWidth = 300;
+HScrollbar scrollBar = new HScrollbar(windowWidth/2, windowHeight - (hud.offset + scrollBarHeight/2), scrollBarWidth, scrollBarHeight);
+
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
 static ArrayList<PVector> arrayCyl = new ArrayList(); 
@@ -74,7 +78,6 @@ void setup () {
   
   //initialization of default time.
   time = millis(); 
-  
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -95,13 +98,8 @@ void draw() {
   
   background(235);
   //HUD DRAWING
-  hud.drawHUD(arrayCyl, mover);
+  hud.drawHUD(arrayCyl, mover, scrollBar);
   
-  if(millis() - time >= timeThreshold){
-    //draw a new bar on the chart.
-    hud.addABar(mover.score);
-    time = millis();
-  }
   
   //putting light
   directionalLight(50, 100, 125, 0, 1, 0);
@@ -111,7 +109,13 @@ void draw() {
     //on fixe la caméra en face du plateau puis on déplace le plateau correctement au centre de la fenêtre.
     camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
     translate(width/2, height/2, 0);
-
+    
+    //gestion de l'affichage dans le temps de la barchart.
+    if(millis() - time >= timeThreshold){
+      //draw a new bar on the chart.
+      hud.addABar(mover.score);
+      time = millis();
+    }
     //pivoter le plateau.
     rotationGestion(); 
 
@@ -159,12 +163,14 @@ void draw() {
       cylinderKeyPressed = false;
     }
   }
+  
+  
 }
 
 //fonction qui s'occupe de tourner le plateau sur l'axe des X et des Y en fonction de l'utilisation de la souris en mode "CLICK"
 //puis de sauvegarder cette inclinaison lorsqu'il n'y a pas de clicks
 void rotationGestion() {
-  if (mousePressed) {
+  if (mousePressed && mouseY < (windowHeight - 2*(hud.offset+scrollBarHeight))) {
     float rz = map(mouseX - constrain(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
     float rx = map(mouseY - constrain(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
     angleX = constrain(rx + rxImmobile, -PI/3, PI/3);
