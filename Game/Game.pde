@@ -16,12 +16,13 @@ static final float boxColor = 255;
 static final float boxWidth = 1500; // valeur qui s'étend sur l'axe des x
 static final float boxThick =  50; // valeur qui s'étend sur l'axe des y
 static final float boxHeight = 1500; // valeur qui s'étend sur l'axe des z
+static final int MAX_BAR_CHART = 21; //nombre maximal de carrés bleu que la bar chart peut afficher. 
 
 //classe qui s'occupe de la balle
 Mover mover = new Mover();
 
 //classe qui s'occupe du HUD (menu en bas) prend comme argument , la partition vertical de l'écran voulu, et la Height et Width de la fenêtre principale.
-HUD hud = new HUD(5, windowWidth, windowHeight);
+HUD hud = new HUD(4, windowWidth, windowHeight);
 
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
@@ -33,6 +34,10 @@ static float cylinderHeight = 150;
 static int cylinderResolution = 40;
 static PShape cylinder = new PShape();
 static boolean cylinderKeyPressed = false; 
+
+//variables relatives au timer.
+static int time;
+static final int timeThreshold = 1500; //à chaque 1500 ms, on ajoute une nouvelle bar sur la chart.
 
 void settings() {
   size(windowWidth, windowHeight, P3D);
@@ -66,6 +71,10 @@ void setup () {
   
   //appelation du setup du HUD pour définir les différentes surfaces de dessin.
   hud.setup();
+  
+  //initialization of default time.
+  time = millis(); 
+  
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -83,9 +92,16 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
 
 void draw() {
   
+  
   background(235);
   //HUD DRAWING
   hud.drawHUD(arrayCyl, mover);
+  
+  if(millis() - time >= timeThreshold){
+    //draw a new bar on the chart.
+    hud.addABar(mover.score);
+    time = millis();
+  }
   
   //putting light
   directionalLight(50, 100, 125, 0, 1, 0);
