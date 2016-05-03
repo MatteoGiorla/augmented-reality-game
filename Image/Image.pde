@@ -140,3 +140,27 @@ PImage sobel(PImage img) { // intensité du blanc pas assez marquée!
   }*/
   return result; 
 }
+
+// assignement 9:
+void hough(PImage edgeImg) {
+  float discretizationStepsPhi = 0.06f;
+  float discretizationStepsR = 2.5f;
+  
+  // dimension of the accumulator
+  int phiDim = (int) (Math.PI / discretizationStepsPhi); 
+  int rDim = (int) (((edgeImg.width + edgeImg.height) * 2 + 1) / discretizationStepsR);
+  
+  // our accumulator (with a 1 pix margin around)
+  int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
+  
+  // Fill
+  
+  for (int y = 0; y < edgeImg.height; y++) {
+  for (int x = 0; x < edgeImg.width; x++) {
+    // Are we on an edge?
+    if (brightness(edgeImg.pixels[y * edgeImg.width + x]) != 0) {
+      // Fill
+    }
+  }
+  }
+}
