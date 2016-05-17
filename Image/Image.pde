@@ -1,4 +1,5 @@
 import processing.video.*;
+import java.util.Collections;
 
 PImage imgStatic; 
 Capture cam;
@@ -24,43 +25,43 @@ void draw() {
     cam.read();
     img = cam.get();
   }
-  background(color(0, 0, 0)); // white background
-  PImage result = createImage(width, height, RGB);
   image(img, 0, 0);
-  /*for (int i = 0; i < img.width * img.height; i++) {
-   if(brightness(img.pixels[i]) >= threshold * thresholdBar1.getPos()) {
+  /*background(color(0, 0, 0)); // white background
+   
+   PImage result = createImage(width, height, RGB); 
+   // 1. Thresholding:
+   for (int i = 0; i < img.width * img.height; i++) {
+   if(brightness(img.pixels[i]) >= threshold * 0.53) { //0.53
    result.pixels[i] = color(255,255,255); 
    }
-   }*/
-
-  /*for (int i = 0; i < img.width * img.height; i++) {
-   println(color(hue(img.pixels[i])) +">="+ threshold +"*"+ thresholdBar1.getPos());
-   if(color(hue(img.pixels[i])) >= threshold * thresholdBar1.getPos() || color(hue(img.pixels[i])) <= threshold * thresholdBar2.getPos()) {
-   print("bonjour"); 
-   result.pixels[i] = img.pixels[i];
+   }
+   
+   // il faudrait modifier updatePixel ou un truc du genre (commentaire assistant)
+  /*for (int x = 0; x < img.width; x++) {
+   for (int y = 0; y < img.height; y++) {
+   if (hue(img.get(x, y)) <= (threshold * thresholdBar2.getPos()) && hue(img.get(x, y)) >= (threshold * thresholdBar1.getPos())) { 
+   result.set(x, y, result.get(x, y));
    } else {
-   result.pixels[i] = color(255, 255, 255); 
+   result.set(x, y, color(0)); // sinon colore le pixel en noir
+   }
    }
    }*/
-  // il faudrait modifier updatePixel ou un truc du genre (commentaire assistant)
-  for (int x = 0; x < img.width; x++) {
-    for (int y = 0; y < img.height; y++) {
-      if (hue(img.get(x, y)) <= (threshold * thresholdBar2.getPos()) && hue(img.get(x, y)) >= (threshold * thresholdBar1.getPos())) { 
-        result.set(x, y, img.get(x, y));
-      } else {
-        result.set(x, y, color(0)); // sinon colore le pixel en noir
-      }
-    }
-  }
-
-  //image(result, 0, 0); // première partie 
-  PImage finalImage = sobel(result); // deuxième partie 
-  //finalImage.updatePixels(); 
+  /*
+  //2. Blur: 
+   float[][] gaussianK = {{9,12,9}, {12,15,12}, {9,12,9}}; 
+   result = convolute(result, gaussianK); 
+   //3. Intensity thresholding:
+   
+   //4. Sobel: 
+   PImage finalImage = sobel(result); 
+   image(finalImage, 0,0); 
+   */
   //image(finalImage, 0, 0); 
   //float[][] k = {{9,12,9},{12,15,12},{9,12,9}}; 
   //PImage res = sobel(img); 
   //image(res, 0, 0); 
-  hough(finalImage);
+
+  //hough(finalImage);
 
   thresholdBar1.display();
   thresholdBar2.display();
@@ -87,8 +88,13 @@ void camera_setup() {
 
 PImage convolute(PImage img, float[][] kernel) { // devrait être correct. 
   //float[][] kernel = {{0,1,0}, {0,0,0}, {0,-1,0}};
-  float N = 3; // kernel size
-  float weight = 1.f;
+  float N = kernel.length; // kernel size
+  float weight = 0f; 
+  for (int x = 0; x < kernel.length; x++) {
+    for (int y = 0; y < kernel[0].length; y++) {
+      weight += kernel[x][y];
+    }
+  }
   // create a greyscale image (type: ALPHA) for output
   PImage result = createImage(img.width, img.height, ALPHA); 
   for (int x = 1; x < img.width - 1; x++) {
@@ -107,6 +113,23 @@ PImage convolute(PImage img, float[][] kernel) { // devrait être correct.
       result.pixels[y * img.width + x] = color(res);
     }
   }
+  /*PImage result = createImage(img.width, img.height, ALPHA); 
+   for (int x = 1; x < img.width - 1; x++) {
+   for (int y = 1; y < img.height - 1; y++) {
+   int li = 0; 
+   float sum = 0;
+   for (int a = (x - (int)N/2); a <= (x + (int)N/2); a++) {
+   int col = 0; 
+   for (int b = (y - (int)N/2); b <= (y + (int)N/2); b++) {
+   sum += brightness(img.get(a, b)) * kernel[li][col]; 
+   col += 1;
+   }
+   li += 1;
+   }
+   sum = sqrt(pow(sum, 2)); 
+   result.pixels[y * img.width + x] = color(sum);
+   }
+   }*/
 
   return result;
 } 
@@ -116,10 +139,11 @@ PImage convolute(PImage img, float[][] kernel) { // devrait être correct.
 PImage convoluteSobel(PImage img) { // devrait être correct. 
   float[][] hKernel= {{0, 1, 0}, {0, 0, 0}, {0, -1, 0}};
   float[][] vKernel= {{0, 0, 0}, {1, 0, -1}, {0, 0, 0}}; 
-  float N = 3; // kernel size  
-  float weight = 1.f;
-  // create a greyscale image (type: ALPHA) for output
 
+  float N = 3; // kernel size
+  float max = 0f; 
+  // create a greyscale image (type: ALPHA) for output
+  float [] buffer = new float[img.width * img.height];
   PImage result = createImage(img.width, img.height, ALPHA); 
   for (int x = 1; x < img.width - 1; x++) {
     for (int y = 1; y < img.height - 1; y++) {
@@ -136,8 +160,22 @@ PImage convoluteSobel(PImage img) { // devrait être correct.
         }
         li += 1;
       }
-      sum = sqrt(pow(sum_h, 2) + pow(sum_v, 2)); 
-      result.pixels[y * img.width + x] = color(sum);
+      sum = sqrt(pow(sum_h, 2) + pow(sum_v, 2));
+      buffer[y * img.width + x] = sum; 
+      if (sum > max) {
+        max = sum;
+      }
+    }
+  }
+
+  for (int x = 2; x < img.width - 2; x++) {
+    for (int y = 2; y < img.height - 2; y++) {
+      int index = y * img.width + x; 
+      if (buffer[index] > (max * 0.3)) {
+        result.pixels[index] = color(255);
+      } else {
+        result.pixels[index] = color(0);
+      }
     }
   }
 
@@ -176,36 +214,27 @@ PImage sobel(PImage img) { // intensité du blanc pas assez marquée!
 /* ================== HOUGH TRANSFORM ================== */
 
 
-void displayAccumulator(int[] accumulator, int rDim, int phiDim){
+void displayAccumulator(int[] accumulator, int rDim, int phiDim) {
   //display accumulator  
-   PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
-   for (int i = 0; i < accumulator.length; i++) {
-   houghImg.pixels[i] = color(min(255, accumulator[i]));
-   }
-   // You may want to resize the accumulator to make it easier to see:
-   houghImg.resize(700, 700);
-   
-   houghImg.updatePixels();
-   image(houghImg, 0, 0); // affiche l'image
+  PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
+  for (int i = 0; i < accumulator.length; i++) {
+    houghImg.pixels[i] = color(min(255, accumulator[i]));
+  }
+  // You may want to resize the accumulator to make it easier to see:
+  houghImg.resize(700, 700);
+
+  houghImg.updatePixels();
+  image(houghImg, 0, 0); // affiche l'image
 }
 
-void displayPlotLines(PImage edgeImg, int[] accumulator, int rDim, float discretizationStepsR, float discretizationStepsPhi){
-     for (int idx = 0; idx < accumulator.length; idx++) {
+void displayPlotLines(PImage edgeImg, ArrayList<Integer> candidates, int[] accumulator, int rDim, float discretizationStepsR, float discretizationStepsPhi) {
+  for (Integer idx : candidates) {
     if (accumulator[idx] > 200) {
       // first, compute back the (r, phi) polar coordinates:
       int accPhi = (int) (idx / (rDim + 2)) - 1;
       int accR = idx - (accPhi + 1) * (rDim + 2) - 1;
       float r = (accR - (rDim - 1) * 0.5f) * discretizationStepsR;
       float phi = accPhi * discretizationStepsPhi;
-      //Cartesian equation of a line: 
-      //y = ax + b
-      //in polar, y = (-cos(phi)/sin(phi))x + (r/sin(phi))
-      //=> y = 0 : 
-      //x = r / cos(phi)
-      //=> x = 0 : 
-      //y = r / sin(phi)
-      // compute the intersection of this line with the 4 borders of
-      // the image
       int x0 = 0;
       int y0 = (int) (r / sin(phi));
       int x1 = (int) (r / cos(phi));
@@ -236,7 +265,7 @@ void displayPlotLines(PImage edgeImg, int[] accumulator, int rDim, float discret
   }
 }
 
-void hough(PImage edgeImg) {
+void hough(PImage edgeImg, int nLines) {
   float discretizationStepsPhi = 0.06f;
   float discretizationStepsR = 2.5f;
 
@@ -263,9 +292,51 @@ void hough(PImage edgeImg) {
       }
     }
   }
+  //selecting best candidates in the accumulator array
+  int minVotes = 198; //purement arbitraire pour l'instant
+  ArrayList<Integer> bestCandidates = selectBestCandidates(accumulator, minVotes, rDim, phiDim);
+  Collections.sort(bestCandidates, new HoughComparator(accumulator));
+  ArrayList<Integer> nCandidates = new ArrayList<Integer>(bestCandidates.subList(0, nLines));
   //display hough image
   //displayAccumulator(accumulator, rDim, phiDim);
-  
+
   //plot lines
-  displayPlotLines(edgeImg, accumulator, rDim, discretizationStepsR, discretizationStepsPhi);
+  displayPlotLines(edgeImg, nCandidates, accumulator, rDim, discretizationStepsR, discretizationStepsPhi);
+}
+
+//will return a selection Arraylist of the indexes of the accumulator having at most "minVotes" votes.
+ArrayList<Integer> selectBestCandidates(int[] accumulator, int minVotes, int rDim, int phiDim) {
+  ArrayList<Integer> bests = new ArrayList<Integer>();// size of the region we search for a local maximum
+  int neighbourhood = 10;
+  // only search around lines with more that this amount of votes
+  for (int accR = 0; accR < rDim; accR++) {
+    for (int accPhi = 0; accPhi < phiDim; accPhi++) {
+      // compute current index in the accumulator
+      int idx = (accPhi + 1) * (rDim + 2) + accR + 1;
+      if (accumulator[idx] > minVotes) {
+        boolean bestCandidate=true;
+        // iterate over the neighbourhood
+        for (int dPhi=-neighbourhood/2; dPhi < neighbourhood/2+1; dPhi++) {
+          // check we are not outside the image
+          if ( accPhi+dPhi < 0 || accPhi+dPhi >= phiDim) continue;
+          for (int dR=-neighbourhood/2; dR < neighbourhood/2 +1; dR++) {
+            // check we are not outside the image
+            if (accR+dR < 0 || accR+dR >= rDim) continue;
+            int neighbourIdx = (accPhi + dPhi + 1) * (rDim + 2) + accR + dR + 1;
+            if (accumulator[idx] < accumulator[neighbourIdx]) {
+              // the current idx is not a local maximum!
+              bestCandidate=false;
+              break;
+            }
+          }
+          if (!bestCandidate) break;
+        }
+        if (bestCandidate) {
+          // the current idx *is* a local maximum
+          bests.add(idx);
+        }
+      }
+    }
+  }
+  return bests;
 }
