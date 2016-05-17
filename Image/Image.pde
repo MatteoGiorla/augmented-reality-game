@@ -16,7 +16,8 @@ void setup() {
 
 void draw() {
   background(color(0, 0, 0)); // white background
-  PImage result = createImage(width, height, RGB); 
+  PImage result = createImage(width, height, RGB);
+  image(img,0,0);
   /*for (int i = 0; i < img.width * img.height; i++) {
    if(brightness(img.pixels[i]) >= threshold * thresholdBar1.getPos()) {
    result.pixels[i] = color(255,255,255); 
@@ -45,7 +46,7 @@ void draw() {
 
   //image(result, 0, 0); // première partie 
   PImage finalImage = sobel(result); // deuxième partie 
-  finalImage.updatePixels(); 
+  //finalImage.updatePixels(); 
   //image(finalImage, 0, 0); 
   //float[][] k = {{9,12,9},{12,15,12},{9,12,9}}; 
   //PImage res = sobel(img); 
@@ -57,6 +58,8 @@ void draw() {
   thresholdBar1.update();
   thresholdBar2.update();
 }
+
+/* ================== CONVOLUTE ================== */
 
 PImage convolute(PImage img, float[][] kernel) { // devrait être correct. 
   //float[][] kernel = {{0,1,0}, {0,0,0}, {0,-1,0}};
@@ -83,6 +86,8 @@ PImage convolute(PImage img, float[][] kernel) { // devrait être correct.
 
   return result;
 } 
+
+/* ================== SOBEL ================== */
 
 PImage convoluteSobel(PImage img) { // devrait être correct. 
   float[][] hKernel= {{0, 1, 0}, {0, 0, 0}, {0, -1, 0}};
@@ -144,7 +149,7 @@ PImage sobel(PImage img) { // intensité du blanc pas assez marquée!
   return result;
 }
 
-//HOUGH TRANSFORM
+/* ================== HOUGH TRANSFORM ================== */
 
 void hough(PImage edgeImg) {
   float discretizationStepsPhi = 0.06f;
@@ -156,7 +161,7 @@ void hough(PImage edgeImg) {
 
   // our accumulator (with a 1 pix margin around)
   int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
-  
+
   //Fill
   for (int y = 0; y < edgeImg.height; y++) {
     for (int x = 0; x < edgeImg.width; x++) {
@@ -173,7 +178,8 @@ void hough(PImage edgeImg) {
       }
     }
   }
-  
+/*
+  //display accumulator  
   PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
   for (int i = 0; i < accumulator.length; i++) {
     houghImg.pixels[i] = color(min(255, accumulator[i]));
@@ -183,9 +189,10 @@ void hough(PImage edgeImg) {
 
   houghImg.updatePixels();
   image(houghImg, 0, 0); // affiche l'image
-}
-
-void plotLines(int[] accumaltor) {
+  */
+  
+  //plot lines
+  
   for (int idx = 0; idx < accumulator.length; idx++) {
     if (accumulator[idx] > 200) {
       // first, compute back the (r, phi) polar coordinates:
@@ -230,3 +237,4 @@ void plotLines(int[] accumaltor) {
       }
     }
   }
+}
