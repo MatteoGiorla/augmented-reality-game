@@ -17,40 +17,37 @@ void setup() {
 void draw() {
   background(color(0, 0, 0)); // white background
   PImage result = createImage(width, height, RGB); 
-  /*for (int i = 0; i < img.width * img.height; i++) {
-   if(brightness(img.pixels[i]) >= threshold * thresholdBar1.getPos()) {
-   result.pixels[i] = color(255,255,255); 
+  // 1. Thresholding:
+  for (int i = 0; i < img.width * img.height; i++) {
+   if(brightness(img.pixels[i]) >= threshold * 0.53) { //0.53
+     result.pixels[i] = color(255,255,255); 
+     }
    }
-   }*/
-
-  /*for (int i = 0; i < img.width * img.height; i++) {
-   println(color(hue(img.pixels[i])) +">="+ threshold +"*"+ thresholdBar1.getPos());
-   if(color(hue(img.pixels[i])) >= threshold * thresholdBar1.getPos() || color(hue(img.pixels[i])) <= threshold * thresholdBar2.getPos()) {
-   print("bonjour"); 
-   result.pixels[i] = img.pixels[i];
-   } else {
-   result.pixels[i] = color(255, 255, 255); 
-   }
-   }*/
+ 
   // il faudrait modifier updatePixel ou un truc du genre (commentaire assistant)
-  for (int x = 0; x < img.width; x++) {
+  /*for (int x = 0; x < img.width; x++) {
     for (int y = 0; y < img.height; y++) {
       if (hue(img.get(x, y)) <= (threshold * thresholdBar2.getPos()) && hue(img.get(x, y)) >= (threshold * thresholdBar1.getPos())) { 
-        result.set(x, y, img.get(x, y));
+        result.set(x, y, result.get(x, y));
       } else {
         result.set(x, y, color(0)); // sinon colore le pixel en noir
       }
     }
-  }
-
-  //image(result, 0, 0); // première partie 
-  PImage finalImage = sobel(result); // deuxième partie 
-  finalImage.updatePixels(); 
+  }*/
+  
+  //2. Blur: 
+  float[][] gaussianK = {{9,12,9}, {12,15,12}, {9,12,9}}; 
+  result = convolute(result, gaussianK); 
+  //3. Intensity thresholding:
+  
+  //4. Sobel: 
+  PImage finalImage = sobel(result); 
+  image(finalImage, 0,0); 
   //image(finalImage, 0, 0); 
   //float[][] k = {{9,12,9},{12,15,12},{9,12,9}}; 
   //PImage res = sobel(img); 
   //image(res, 0, 0); 
-  hough(finalImage);
+  //hough(finalImage);
     
   thresholdBar1.display();
   thresholdBar2.display();
@@ -60,8 +57,13 @@ void draw() {
 
 PImage convolute(PImage img, float[][] kernel) { // devrait être correct. 
   //float[][] kernel = {{0,1,0}, {0,0,0}, {0,-1,0}};
-  float N = 3; // kernel size
-  float weight = 1.f;
+  float N = kernel.length; // kernel size
+  float weight = 0f; 
+  for (int x = 0; x < kernel.length; x++) {
+    for (int y = 0; y < kernel[0].length; y++) {
+      weight += kernel[x][y];
+    }
+  }
   // create a greyscale image (type: ALPHA) for output
   PImage result = createImage(img.width, img.height, ALPHA); 
   for (int x = 1; x < img.width - 1; x++) {
@@ -80,6 +82,23 @@ PImage convolute(PImage img, float[][] kernel) { // devrait être correct.
       result.pixels[y * img.width + x] = color(res);
     }
   }
+  /*PImage result = createImage(img.width, img.height, ALPHA); 
+  for (int x = 1; x < img.width - 1; x++) {
+    for (int y = 1; y < img.height - 1; y++) {
+      int li = 0; 
+      float sum = 0;
+      for (int a = (x - (int)N/2); a <= (x + (int)N/2); a++) {
+        int col = 0; 
+        for (int b = (y - (int)N/2); b <= (y + (int)N/2); b++) {
+          sum += brightness(img.get(a, b)) * kernel[li][col]; 
+          col += 1;
+        }
+        li += 1;
+      }
+      sum = sqrt(pow(sum, 2)); 
+      result.pixels[y * img.width + x] = color(sum);
+    }
+  }*/
 
   return result;
 } 
@@ -88,9 +107,9 @@ PImage convoluteSobel(PImage img) { // devrait être correct.
   float[][] hKernel= {{0, 1, 0}, {0, 0, 0}, {0, -1, 0}};
   float[][] vKernel= {{0, 0, 0}, {1, 0, -1}, {0, 0, 0}}; 
   float N = 3; // kernel size
-  float weight = 1.f;
+  float max = 0f; 
   // create a greyscale image (type: ALPHA) for output
-
+  float [] buffer = new float[img.width * img.height];
   PImage result = createImage(img.width, img.height, ALPHA); 
   for (int x = 1; x < img.width - 1; x++) {
     for (int y = 1; y < img.height - 1; y++) {
@@ -107,8 +126,24 @@ PImage convoluteSobel(PImage img) { // devrait être correct.
         }
         li += 1;
       }
-      sum = sqrt(pow(sum_h, 2) + pow(sum_v, 2)); 
-      result.pixels[y * img.width + x] = color(sum);
+      sum = sqrt(pow(sum_h, 2) + pow(sum_v, 2));
+      buffer[y * img.width + x] = sum; 
+      if (sum > max) {
+        max = sum; 
+      }
+      
+      
+    }
+  }
+  
+  for (int x = 2; x < img.width - 2; x++) {
+    for (int y = 2; y < img.height - 2; y++) {
+      int index = y * img.width + x; 
+      if (buffer[index] > (max * 0.3)) {
+        result.pixels[index] = color(255); 
+      } else {
+        result.pixels[index] = color(0); 
+      }
     }
   }
 
@@ -176,7 +211,6 @@ void hough(PImage edgeImg) {
           r = r - a; // pour que r soit divisible par 2.5f
           r = r / discretizationStepsR;
           r += (rDim - 1)/2;
-          
           phi = phi / discretizationStepsPhi;
           accumulator[((int)(phi+1) * (rDim+2) + (int)(r+1))] += 1;
         }
