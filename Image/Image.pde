@@ -172,13 +172,10 @@ void hough(PImage edgeImg) {
         // Fill
         for (float phi = 0f; phi < Math.PI; phi += discretizationStepsPhi) {
           float r = x*cos(phi) + y*sin(phi); 
-          float a = r%discretizationStepsR;
-          r = r - a; // pour que r soit divisible par 2.5f
-          r = r / discretizationStepsR;
-          r += (rDim - 1)/2;
-
-          phi = phi / discretizationStepsPhi;
-          accumulator[((int)(phi+1) * (rDim+2) + (int)(r+1))] += 1;
+          int rInt = (int)(r / discretizationStepsR);
+          rInt += (rDim - 1)/2;
+          int phiInt = (int)(phi / discretizationStepsPhi);
+          accumulator[((phiInt+1) * (rDim+2) + (rInt+1))] += 1;
         }
       }
     }
