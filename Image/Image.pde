@@ -43,13 +43,14 @@ void draw() {
     }
   }
 
-  //image(result, 0, 0); //première partie 
-  //PImage finalImage = sobel(result); 
+  //image(result, 0, 0); // première partie 
+  PImage finalImage = sobel(result); // deuxième partie 
+  finalImage.updatePixels(); 
   //image(finalImage, 0, 0); 
   //float[][] k = {{9,12,9},{12,15,12},{9,12,9}}; 
   //PImage res = sobel(img); 
   //image(res, 0, 0); 
-   
+  hough(finalImage);
     
   thresholdBar1.display();
   thresholdBar2.display();
@@ -115,8 +116,8 @@ PImage convoluteSobel(PImage img) { // devrait être correct.
 } 
 
 PImage sobel(PImage img) { // intensité du blanc pas assez marquée!
-  float[][] hKernel= {{0, 1, 0}, {0, 0, 0}, {0, -1, 0}};
-  float[][] vKernel= {{0, 0, 0}, {1, 0, -1}, {0, 0, 0}}; 
+  float[][] hKernel = {{0, 1, 0}, {0, 0, 0}, {0, -1, 0}};
+  float[][] vKernel = {{0, 0, 0}, {1, 0, -1}, {0, 0, 0}}; 
   PImage result = createImage(img.width, img.height, ALPHA); 
 
   // clear the image
@@ -169,15 +170,15 @@ void hough(PImage edgeImg) {
       // Are we on an edge?
       if (brightness(edgeImg.pixels[y * edgeImg.width + x]) != 0) {
         // Fill
-        for (float phi = 0f; phi <= Math.PI; phi += discretizationStepsPhi) {
+        for (float phi = 0f; phi < Math.PI; phi += discretizationStepsPhi) {
           float r = x*cos(phi) + y*sin(phi); 
           float a = r%discretizationStepsR;
-          r = r - a; 
+          r = r - a; // pour que r soit divisible par 2.5f
+          r = r / discretizationStepsR;
           r += (rDim - 1)/2;
-          int phiMapped = map(phi, 0f, Math.PI, 0f, (float)phiDim + 2); 
-          if (r < rDim + 2) {
-          accumulator[phiMapped * (rDim+2) + r] += 1;
-          }
+          
+          phi = phi / discretizationStepsPhi;
+          accumulator[((int)(phi+1) * (rDim+2) + (int)(r+1))] += 1;
         }
       }
     }
@@ -187,6 +188,8 @@ void hough(PImage edgeImg) {
         houghImg.pixels[i] = color(min(255, accumulator[i]));
 }
 // You may want to resize the accumulator to make it easier to see:
-    // houghImg.resize(400, 400);
+    houghImg.resize(700, 700);
+    
     houghImg.updatePixels();
+    image(houghImg,0,0); // affiche l'image
 }
