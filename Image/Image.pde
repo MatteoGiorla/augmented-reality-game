@@ -144,7 +144,8 @@ PImage sobel(PImage img) { // intensité du blanc pas assez marquée!
   return result;
 }
 
-// assignement 9:
+//HOUGH TRANSFORM
+
 void hough(PImage edgeImg) {
   float discretizationStepsPhi = 0.06f;
   float discretizationStepsR = 2.5f;
@@ -155,16 +156,8 @@ void hough(PImage edgeImg) {
 
   // our accumulator (with a 1 pix margin around)
   int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
-
-  // Fill
-  /*for (float x = 0; x < phiDim + 2; x++) {
-   for (float y = 0; y < rDim + 2; y++) {
-   accumulator[x * rDim + y] =  
-   phi += discretizationStepsPhi; 
-   r += discretizationStepsR;
-   }
-   }*/
-
+  
+  //Fill
   for (int y = 0; y < edgeImg.height; y++) {
     for (int x = 0; x < edgeImg.width; x++) {
       // Are we on an edge?
@@ -180,6 +173,7 @@ void hough(PImage edgeImg) {
       }
     }
   }
+  
   PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
   for (int i = 0; i < accumulator.length; i++) {
     houghImg.pixels[i] = color(min(255, accumulator[i]));
