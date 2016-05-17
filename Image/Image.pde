@@ -33,7 +33,7 @@ void draw() {
   //1. Thresholding:
   //Hue
   for (int x = 0; x < img.width * img.height; x++) {
-    if ((hue(img.pixels[x]) > 90 && hue(img.pixels[x]) < 150)) { 
+    if ((hue(img.pixels[x]) > 110 && hue(img.pixels[x]) < 130)) { 
       result.pixels[x] = img.pixels[x];
     } else {
       result.pixels[x] = color(0); // sinon colore le pixel en noir
@@ -56,14 +56,13 @@ void draw() {
 
   //4. Sobel: 
   result = sobel(result); 
-  //image(result, 0, 0);
 
-  hough(result, 200);
+  hough(result, 15);
   /*
   thresholdBar1.display();
-  thresholdBar2.display();
-  thresholdBar1.update();
-  thresholdBar2.update();*/
+   thresholdBar2.display();
+   thresholdBar1.update();
+   thresholdBar2.update();*/
 }
 
 /* ================== CAMERA SETUP ================== */
@@ -98,19 +97,22 @@ PImage convolute(PImage img, float[][] kernel) {
 
   for (int x = 1; x < img.width - 1; x++) {
     for (int y = 1; y < img.height - 1; y++) {
+      int li = 0; 
       res = 0; 
-      for (int a = -1; a < 2; a++) {
-        for (int b = -1; b < 2; b++) {
-          res += brightness(img.get(x + a, y + b)) * kernel[a + 1][b + 1];
+      for (int a = (x - (int)N/2); a <= (x + (int)N/2); a++) {
+        int col = 0; 
+        for (int b = (y - (int)N/2); b <= (y + (int)N/2); b++) {
+          res += brightness(img.get(a, b)) * kernel[li][col];
+          col += 1;
         }
+        li += 1;
+        res = res / weight;
+        result.pixels[y * img.width + x] = color(res);
       }
-      res = res / weight;
-      result.pixels[y * img.width + x] = color(res);
     }
   }
-
   return result;
-} 
+}
 
 /* ================== SOBEL ================== */
 
@@ -170,16 +172,16 @@ PImage sobel(PImage img) { // intensité du blanc pas assez marquée!
 
 void displayAccumulator(int[] accumulator, int rDim, int phiDim) {
   //display accumulator  
-  
+
   PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
-   for (int i = 0; i < accumulator.length; i++) {
-   houghImg.pixels[i] = color(min(255, accumulator[i]));
-   }
-   // You may want to resize the accumulator to make it easier to see:
-   houghImg.resize(400, 400);
-   
-   houghImg.updatePixels();
-   image(houghImg, 0, 0); // affiche l'image
+  for (int i = 0; i < accumulator.length; i++) {
+    houghImg.pixels[i] = color(min(255, accumulator[i]));
+  }
+  // You may want to resize the accumulator to make it easier to see:
+  houghImg.resize(400, 400);
+
+  houghImg.updatePixels();
+  image(houghImg, 0, 0); // affiche l'image
 }
 
 void displayPlotLines(PImage edgeImg, ArrayList<Integer> candidates, int[] accumulator, int rDim, float discretizationStepsR, float discretizationStepsPhi) {
@@ -247,15 +249,15 @@ void hough(PImage edgeImg, int nLines) {
       }
     }
   }
-  
+
   //selecting best candidates in the accumulator array
   int minVotes = 198; //purement arbitraire pour l'instant
   ArrayList<Integer> bestCandidates = selectBestCandidates(accumulator, minVotes, rDim, phiDim);
   Collections.sort(bestCandidates, new HoughComparator(accumulator));
-  if(nLines < bestCandidates.size()){
+  if (nLines < bestCandidates.size()) {
     bestCandidates = new ArrayList<Integer>(bestCandidates.subList(0, nLines));
   }
-  
+
   //display hough image
   //displayAccumulator(accumulator, rDim, phiDim);
 
