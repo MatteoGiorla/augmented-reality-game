@@ -1,4 +1,7 @@
-PImage img; 
+import processing.video.*;
+
+PImage imgStatic; 
+Capture cam;
 static int threshold = 255; 
 HScrollbar thresholdBar1; // add a scrollbar on the bottom of the window
 HScrollbar thresholdBar2; // upper scrollbar
@@ -8,16 +11,22 @@ void settings() {
 }
 
 void setup() {
-  img = loadImage("board1.jpg"); 
+  imgStatic = loadImage("board1.jpg"); 
   thresholdBar1 = new HScrollbar(0, 580, 800, 20); 
   thresholdBar2 = new HScrollbar(0, 555, 800, 20); 
+  camera_setup();
   //noLoop(); // no interactive behaviour: draw() will be called only once.
 }
 
 void draw() {
+  PImage img = imgStatic;
+  if (cam.available() == true) {
+    cam.read();
+    img = cam.get();
+  }
   background(color(0, 0, 0)); // white background
   PImage result = createImage(width, height, RGB);
-  image(img,0,0);
+  image(img, 0, 0);
   /*for (int i = 0; i < img.width * img.height; i++) {
    if(brightness(img.pixels[i]) >= threshold * thresholdBar1.getPos()) {
    result.pixels[i] = color(255,255,255); 
@@ -59,6 +68,21 @@ void draw() {
   thresholdBar2.update();
 }
 
+/* ================== CAMERA SETUP ================== */
+void camera_setup() {
+  String[] cameras = Capture.list();
+  if (cameras.length == 0) {
+    println("There are no cameras available for capture.");
+    exit();
+  } else {
+    println("Available cameras:");
+    for (int i = 0; i < cameras.length; i++) {
+      println(cameras[i]);
+    }
+    cam = new Capture(this, cameras[0]);
+    cam.start();
+  }
+}
 /* ================== CONVOLUTE ================== */
 
 PImage convolute(PImage img, float[][] kernel) { // devrait être correct. 
@@ -151,49 +175,22 @@ PImage sobel(PImage img) { // intensité du blanc pas assez marquée!
 
 /* ================== HOUGH TRANSFORM ================== */
 
-void hough(PImage edgeImg) {
-  float discretizationStepsPhi = 0.06f;
-  float discretizationStepsR = 2.5f;
 
-  // dimension of the accumulator
-  int phiDim = (int) (Math.PI / discretizationStepsPhi); 
-  int rDim = (int) (((edgeImg.width + edgeImg.height) * 2 + 1) / discretizationStepsR);
-
-  // our accumulator (with a 1 pix margin around)
-  int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
-
-  //Fill
-  for (int y = 0; y < edgeImg.height; y++) {
-    for (int x = 0; x < edgeImg.width; x++) {
-      // Are we on an edge?
-      if (brightness(edgeImg.pixels[y * edgeImg.width + x]) != 0) {
-        // Fill
-        for (float phi = 0f; phi < Math.PI; phi += discretizationStepsPhi) {
-          float r = x*cos(phi) + y*sin(phi); 
-          int rInt = (int)(r / discretizationStepsR);
-          rInt += (rDim - 1)/2;
-          int phiInt = (int)(phi / discretizationStepsPhi);
-          accumulator[((phiInt+1) * (rDim+2) + (rInt+1))] += 1;
-        }
-      }
-    }
-  }
-/*
+void displayAccumulator(int[] accumulator, int rDim, int phiDim){
   //display accumulator  
-  PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
-  for (int i = 0; i < accumulator.length; i++) {
-    houghImg.pixels[i] = color(min(255, accumulator[i]));
-  }
-  // You may want to resize the accumulator to make it easier to see:
-  houghImg.resize(700, 700);
+   PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
+   for (int i = 0; i < accumulator.length; i++) {
+   houghImg.pixels[i] = color(min(255, accumulator[i]));
+   }
+   // You may want to resize the accumulator to make it easier to see:
+   houghImg.resize(700, 700);
+   
+   houghImg.updatePixels();
+   image(houghImg, 0, 0); // affiche l'image
+}
 
-  houghImg.updatePixels();
-  image(houghImg, 0, 0); // affiche l'image
-  */
-  
-  //plot lines
-  
-  for (int idx = 0; idx < accumulator.length; idx++) {
+void displayPlotLines(PImage edgeImg, int[] accumulator, int rDim, float discretizationStepsR, float discretizationStepsPhi){
+     for (int idx = 0; idx < accumulator.length; idx++) {
     if (accumulator[idx] > 200) {
       // first, compute back the (r, phi) polar coordinates:
       int accPhi = (int) (idx / (rDim + 2)) - 1;
@@ -237,4 +234,38 @@ void hough(PImage edgeImg) {
       }
     }
   }
+}
+
+void hough(PImage edgeImg) {
+  float discretizationStepsPhi = 0.06f;
+  float discretizationStepsR = 2.5f;
+
+  // dimension of the accumulator
+  int phiDim = (int) (Math.PI / discretizationStepsPhi); 
+  int rDim = (int) (((edgeImg.width + edgeImg.height) * 2 + 1) / discretizationStepsR);
+
+  // our accumulator (with a 1 pix margin around)
+  int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
+
+  //Fill
+  for (int y = 0; y < edgeImg.height; y++) {
+    for (int x = 0; x < edgeImg.width; x++) {
+      // Are we on an edge?
+      if (brightness(edgeImg.pixels[y * edgeImg.width + x]) != 0) {
+        // Fill
+        for (float phi = 0f; phi < Math.PI; phi += discretizationStepsPhi) {
+          float r = x*cos(phi) + y*sin(phi); 
+          int rInt = (int)(r / discretizationStepsR);
+          rInt += (rDim - 1)/2;
+          int phiInt = (int)(phi / discretizationStepsPhi);
+          accumulator[((phiInt+1) * (rDim+2) + (rInt+1))] += 1;
+        }
+      }
+    }
+  }
+  //display hough image
+  //displayAccumulator(accumulator, rDim, phiDim);
+  
+  //plot lines
+  displayPlotLines(edgeImg, accumulator, rDim, discretizationStepsR, discretizationStepsPhi);
 }
