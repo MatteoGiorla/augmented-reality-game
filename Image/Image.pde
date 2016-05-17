@@ -51,7 +51,7 @@ void draw() {
   //PImage res = sobel(img); 
   //image(res, 0, 0); 
   hough(finalImage);
-    
+
   thresholdBar1.display();
   thresholdBar2.display();
   thresholdBar1.update();
@@ -87,7 +87,7 @@ PImage convolute(PImage img, float[][] kernel) { // devrait être correct.
 PImage convoluteSobel(PImage img) { // devrait être correct. 
   float[][] hKernel= {{0, 1, 0}, {0, 0, 0}, {0, -1, 0}};
   float[][] vKernel= {{0, 0, 0}, {1, 0, -1}, {0, 0, 0}}; 
-  float N = 3; // kernel size
+  float N = 3; // kernel size  
   float weight = 1.f;
   // create a greyscale image (type: ALPHA) for output
 
@@ -176,7 +176,7 @@ void hough(PImage edgeImg) {
           r = r - a; // pour que r soit divisible par 2.5f
           r = r / discretizationStepsR;
           r += (rDim - 1)/2;
-          
+
           phi = phi / discretizationStepsPhi;
           accumulator[((int)(phi+1) * (rDim+2) + (int)(r+1))] += 1;
         }
@@ -184,12 +184,58 @@ void hough(PImage edgeImg) {
     }
   }
   PImage houghImg = createImage(rDim + 2, phiDim + 2, ALPHA);
-    for (int i = 0; i < accumulator.length; i++) {
-        houghImg.pixels[i] = color(min(255, accumulator[i]));
+  for (int i = 0; i < accumulator.length; i++) {
+    houghImg.pixels[i] = color(min(255, accumulator[i]));
+  }
+  // You may want to resize the accumulator to make it easier to see:
+  houghImg.resize(700, 700);
+
+  houghImg.updatePixels();
+  image(houghImg, 0, 0); // affiche l'image
 }
-// You may want to resize the accumulator to make it easier to see:
-    houghImg.resize(700, 700);
-    
-    houghImg.updatePixels();
-    image(houghImg,0,0); // affiche l'image
-}
+
+void plotLines(int[] accumaltor) {
+  for (int idx = 0; idx < accumulator.length; idx++) {
+    if (accumulator[idx] > 200) {
+      // first, compute back the (r, phi) polar coordinates:
+      int accPhi = (int) (idx / (rDim + 2)) - 1;
+      int accR = idx - (accPhi + 1) * (rDim + 2) - 1;
+      float r = (accR - (rDim - 1) * 0.5f) * discretizationStepsR;
+      float phi = accPhi * discretizationStepsPhi;
+      //Cartesian equation of a line: 
+      //y = ax + b
+      //in polar, y = (-cos(phi)/sin(phi))x + (r/sin(phi))
+      //=> y = 0 : 
+      //x = r / cos(phi)
+      //=> x = 0 : 
+      //y = r / sin(phi)
+      // compute the intersection of this line with the 4 borders of
+      // the image
+      int x0 = 0;
+      int y0 = (int) (r / sin(phi));
+      int x1 = (int) (r / cos(phi));
+      int y1 = 0;
+      int x2 = edgeImg.width;
+      int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
+      int y3 = edgeImg.width;
+      int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
+      // Finally, plot the lines
+      stroke(204, 102, 0);
+      if (y0 > 0) {
+        if (x1 > 0)
+          line(x0, y0, x1, y1);
+        else if (y2 > 0)
+          line(x0, y0, x2, y2);
+        else
+          line(x0, y0, x3, y3);
+      } else {
+        if (x1 > 0) {
+          if (y2 > 0)
+            line(x1, y1, x2, y2); 
+          else
+            line(x1, y1, x3, y3);
+        } else
+          line(x2, y2, x3, y3);
+      }
+    }
+  }
