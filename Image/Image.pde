@@ -58,7 +58,7 @@ void draw() {
   result = sobel(result); 
   //image(result, 0, 0);
 
-  hough(result, 200);
+  hough(result, 15);
   /*
   thresholdBar1.display();
   thresholdBar2.display();
