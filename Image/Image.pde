@@ -1,6 +1,5 @@
 import processing.video.*;
-import java.util.List;
-import java.util.Collections;
+import java.util.*;
 
 PImage imgStatic; 
 Capture cam;
@@ -10,6 +9,9 @@ HScrollbar thresholdBar2; // upper scrollbar
 static float th1 = 0.5;
 static float th2 = 1.0;
 
+QuadGraph graph;
+
+
 void settings() {
   size(800, 600);
 }
@@ -18,8 +20,11 @@ void setup() {
   imgStatic = loadImage("board1.jpg"); 
   thresholdBar1 = new HScrollbar(0, 580, 800, 20); 
   thresholdBar2 = new HScrollbar(0, 555, 800, 20); 
-  camera_setup();
+  graph = new QuadGraph();
+  
+  //camera_setup();
   //noLoop(); // no interactive behaviour: draw() will be called only once.
+
 }
 
 void draw() {
@@ -57,10 +62,14 @@ void draw() {
 
   //4. Sobel: 
   result = sobel(result); 
+  image(result, 0, 0);
 
-  ArrayList<PVector> houghArray = hough(result, 15);
+  ArrayList<PVector> houghArray = hough(result, 6);
   ArrayList<PVector> intersections = getIntersections(houghArray);
 
+  //Quads
+  graph.build(houghArray, img.width, img.height);
+  
   /*
   thresholdBar1.display();
    thresholdBar2.display();
