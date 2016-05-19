@@ -1,4 +1,5 @@
 import processing.video.*;
+import java.util.List;
 import java.util.Collections;
 
 PImage imgStatic; 
@@ -23,10 +24,10 @@ void setup() {
 
 void draw() {
   PImage img = imgStatic;
-  if (cam.available() == true) {
-    cam.read();
-    img = cam.get();
-  }
+  /*if (cam.available() == true) {
+   cam.read();
+   img = cam.get();
+   }*/
   image(img, 0, 0);
   PImage result = createImage(img.width, img.height, RGB); 
 
@@ -57,7 +58,9 @@ void draw() {
   //4. Sobel: 
   result = sobel(result); 
 
-  hough(result, 10);
+  ArrayList<PVector> houghArray = hough(result, 15);
+  ArrayList<PVector> intersections = getIntersections(houghArray);
+
   /*
   thresholdBar1.display();
    thresholdBar2.display();
@@ -232,20 +235,23 @@ void precomputeSinCos(float[] tabSin, float[] tabCos, float discretizationStepsR
 }
 
 
-void hough(PImage edgeImg, int nLines) {
+ArrayList<PVector> hough(PImage edgeImg, int nLines) {
+
+  ArrayList<PVector> detectedLines = new ArrayList<PVector>();
+
   float discretizationStepsPhi = 0.06f;
   float discretizationStepsR = 2.5f;
-  
+
   // dimension of the accumulator
   int phiDim = (int) (Math.PI / discretizationStepsPhi); 
   int rDim = (int) (((edgeImg.width + edgeImg.height) * 2 + 1) / discretizationStepsR);
-  
+
   // Tableau possédant les valeurs de Cosinus et Sinus précalculées.
   float[] tabSin = new float[phiDim];
   float[] tabCos = new float[phiDim];
-  
+
   precomputeSinCos(tabSin, tabCos, discretizationStepsR, discretizationStepsPhi);
-  
+
   // our accumulator (with a 1 pix margin around)
   int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
 
@@ -278,7 +284,19 @@ void hough(PImage edgeImg, int nLines) {
 
   //plot lines
   displayPlotLines(edgeImg, bestCandidates, accumulator, rDim, discretizationStepsR, discretizationStepsPhi);
+
+  for (Integer idx : bestCandidates) {
+    int accPhi = (int) (idx / (rDim + 2)) - 1;
+    int accR = idx - (accPhi + 1) * (rDim + 2) - 1;
+    float r = (accR - (rDim - 1) * 0.5f) * discretizationStepsR;
+    float phi = accPhi * discretizationStepsPhi;
+
+    detectedLines.add(new PVector(r, phi));
+  }
+
+  return detectedLines;
 }
+
 
 //will return a selection Arraylist of the indexes of the accumulator having at most "minVotes" votes.
 ArrayList<Integer> selectBestCandidates(int[] accumulator, int minVotes, int rDim, int phiDim) {
@@ -315,4 +333,26 @@ ArrayList<Integer> selectBestCandidates(int[] accumulator, int minVotes, int rDi
     }
   }
   return bests;
+}
+
+
+ArrayList<PVector> getIntersections(List<PVector> lines) {
+  ArrayList<PVector> intersections = new ArrayList<PVector>();
+  for (int i = 0; i < lines.size() - 1; i++) {
+    PVector line1 = lines.get(i);
+    for (int j = i + 1; j < lines.size(); j++) {
+      PVector line2 = lines.get(j);
+      // compute the intersection and add it to ’intersections’
+      float d = cos(line2.y) * sin(line1.y) - cos(line1.y) * sin(line2.y);
+      float x = (line2.x*sin(line1.y) - line1.x * sin(line2.y))/d;
+      float y = (- line2.x*cos(line1.y) + line1.x * cos(line2.y))/d;
+
+      intersections.add(new PVector(x, y));
+
+      // draw the intersection 
+      fill(255, 128, 0); 
+      ellipse(x, y, 10, 10);
+    }
+  }
+  return intersections;
 }
