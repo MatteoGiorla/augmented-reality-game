@@ -9,6 +9,8 @@ HScrollbar thresholdBar2; // upper scrollbar
 static float th1 = 0.5;
 static float th2 = 1.0;
 
+boolean wantCam = false; //uniquely to switch wether we want camera mode or not
+
 QuadGraph graph;
 
 
@@ -17,64 +19,93 @@ void settings() {
 }
 
 void setup() {
-  imgStatic = loadImage("board1.jpg"); 
+  imgStatic = loadImage("board4.jpg"); 
   thresholdBar1 = new HScrollbar(0, 580, 800, 20); 
   thresholdBar2 = new HScrollbar(0, 555, 800, 20); 
   graph = new QuadGraph();
   
-  //camera_setup();
-  //noLoop(); // no interactive behaviour: draw() will be called only once.
-
+  if(wantCam){
+     camera_setup();
+  }else{
+    noLoop(); // no interactive behaviour: draw() will be called only once.
+  }
+  
+  
 }
 
 void draw() {
   PImage img = imgStatic;
-  /*if (cam.available() == true) {
-   cam.read();
-   img = cam.get();
-   }*/
+  if (wantCam && cam.available() == true) {
+    cam.read();
+    img = cam.get();
+  }
   image(img, 0, 0);
-  PImage result = createImage(img.width, img.height, RGB); 
-
   //1. Thresholding:
-  //Hue
-  for (int x = 0; x < img.width * img.height; x++) {
-    if ((hue(img.pixels[x]) > 110 && hue(img.pixels[x]) < 130)) { 
-      result.pixels[x] = img.pixels[x];
+    //Saturation
+    PImage satuResult = saturationFilter(img);
+    
+    //Hue
+    PImage hueResult = hueFilter(satuResult); 
+    
+    //Brightness
+    PImage brightResult = brightFilter(hueResult);
+    
+   //2. Blur: 
+    float[][] gaussianK = {{9, 12, 9}, {12, 15, 12}, {9, 12, 9}}; 
+    PImage convResult = convolute(brightResult, gaussianK);
+    
+  //3. Intensity thresholding: (Maybe not)
+  
+  
+  //4. Sobel: 
+  PImage result = sobel(convResult);
+  
+  //Hough
+  ArrayList<PVector> houghArray = hough(result, 4);
+  ArrayList<PVector> intersections = getIntersections(houghArray);
+
+  //Quads
+  graph.build(houghArray, img.width, img.height);
+}
+
+
+/* ================== FILTERS ================== */
+
+PImage hueFilter(PImage image) {
+  PImage result = createImage(image.width, image.height, RGB);
+  for (int x = 0; x < image.width * image.height; x++) {
+    if ((hue(image.pixels[x]) > 34 && hue(image.pixels[x]) < 138)) { 
+      result.pixels[x] = image.pixels[x];
     } else {
       result.pixels[x] = color(0); // sinon colore le pixel en noir
     }
   }
-  //Brightness
-  for (int i = 0; i < img.width * img.height; i++) {
-    if ((brightness(img.pixels[i]) > threshold * th1) && (brightness(img.pixels[i]) < threshold * th2)) { //0.53
+  return result;
+}
+
+PImage brightFilter(PImage image) {
+  PImage result = createImage(image.width, image.height, RGB);
+  for (int i = 0; i < image.width * image.height; i++) {
+    if ((brightness(image.pixels[i]) > 30) && (brightness(image.pixels[i]) < 150)) { //0.53
       result.pixels[i] = color(255);
     } else {
       result.pixels[i] = color(0);
     }
   }
+  return result;
+}
 
-  //2. Blur: 
-  float[][] gaussianK = {{9, 12, 9}, {12, 15, 12}, {9, 12, 9}}; 
-  result = convolute(result, gaussianK); 
+PImage saturationFilter(PImage image) {
+  PImage result = createImage(image.width, image.height, RGB);
+  for (int i = 0; i < image.width * image.height; i++) {
+    if ((saturation(image.pixels[i]) > 100)) {
+      result.pixels[i] = image.pixels[i];
+    } else {
+      result.pixels[i] = color(0);
+    }
+  }
+  return result;
 
-  //3. Intensity thresholding:
-
-  //4. Sobel: 
-  result = sobel(result); 
-  image(result, 0, 0);
-
-  ArrayList<PVector> houghArray = hough(result, 6);
-  ArrayList<PVector> intersections = getIntersections(houghArray);
-
-  //Quads
-  graph.build(houghArray, img.width, img.height);
-  
-  /*
-  thresholdBar1.display();
-   thresholdBar2.display();
-   thresholdBar1.update();
-   thresholdBar2.update();*/
 }
 
 /* ================== CAMERA SETUP ================== */
@@ -233,9 +264,8 @@ void displayPlotLines(PImage edgeImg, ArrayList<Integer> candidates, int[] accum
     }
   }
 }
-void precomputeSinCos(float[] tabSin, float[] tabCos, float discretizationStepsR, float discretizationStepsPhi) {
+void precomputeSinCos(float[] tabSin, float[] tabCos, float discretizationStepsPhi) {
   float ang = 0;
-  float inverseR = 1.f / discretizationStepsR;
   for (int accPhi = 0; accPhi < tabSin.length; ang += discretizationStepsPhi, accPhi++) {
     // we can also pre-multiply by (1/discretizationStepsR) since we need it in the Hough loop
     tabSin[accPhi] = (float) (Math.sin(ang));
@@ -259,7 +289,7 @@ ArrayList<PVector> hough(PImage edgeImg, int nLines) {
   float[] tabSin = new float[phiDim];
   float[] tabCos = new float[phiDim];
 
-  precomputeSinCos(tabSin, tabCos, discretizationStepsR, discretizationStepsPhi);
+  precomputeSinCos(tabSin, tabCos, discretizationStepsPhi);
 
   // our accumulator (with a 1 pix margin around)
   int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
