@@ -47,7 +47,7 @@ class QuadGraph {
       PVector c23 = intersection(l2, l3); 
       PVector c34 = intersection(l3, l4); 
       PVector c41 = intersection(l4, l1);
-      if (isConvex(c12, c23, c34, c41) && validArea(c12, c23, c34, c41, 500000f, 10000f) && nonFlatQuad(c12, c23, c34, c41)) {
+      if (isConvex(c12, c23, c34, c41) && validArea(c12, c23, c34, c41, 1000000f, 10000f) && nonFlatQuad(c12, c23, c34, c41)) {
         // Choose a random, semi-transparent colour 
         Random random = new Random(); 
         fill(color(min(255, random.nextInt(300)), min(255, random.nextInt(300)), min(255, random.nextInt(300)), 50));
