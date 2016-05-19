@@ -57,7 +57,7 @@ void draw() {
   //4. Sobel: 
   result = sobel(result); 
 
-  hough(result, 15);
+  hough(result, 10);
   /*
   thresholdBar1.display();
    thresholdBar2.display();
@@ -221,15 +221,31 @@ void displayPlotLines(PImage edgeImg, ArrayList<Integer> candidates, int[] accum
     }
   }
 }
+void precomputeSinCos(float[] tabSin, float[] tabCos, float discretizationStepsR, float discretizationStepsPhi) {
+  float ang = 0;
+  float inverseR = 1.f / discretizationStepsR;
+  for (int accPhi = 0; accPhi < tabSin.length; ang += discretizationStepsPhi, accPhi++) {
+    // we can also pre-multiply by (1/discretizationStepsR) since we need it in the Hough loop
+    tabSin[accPhi] = (float) (Math.sin(ang));
+    tabCos[accPhi] = (float) (Math.cos(ang));
+  }
+}
+
 
 void hough(PImage edgeImg, int nLines) {
   float discretizationStepsPhi = 0.06f;
   float discretizationStepsR = 2.5f;
-
+  
   // dimension of the accumulator
   int phiDim = (int) (Math.PI / discretizationStepsPhi); 
   int rDim = (int) (((edgeImg.width + edgeImg.height) * 2 + 1) / discretizationStepsR);
-
+  
+  // Tableau possédant les valeurs de Cosinus et Sinus précalculées.
+  float[] tabSin = new float[phiDim];
+  float[] tabCos = new float[phiDim];
+  
+  precomputeSinCos(tabSin, tabCos, discretizationStepsR, discretizationStepsPhi);
+  
   // our accumulator (with a 1 pix margin around)
   int[] accumulator = new int[(phiDim + 2) * (rDim + 2)];
 
@@ -239,12 +255,11 @@ void hough(PImage edgeImg, int nLines) {
       // Are we on an edge?
       if (brightness(edgeImg.pixels[y * edgeImg.width + x]) != 0) {
         // Fill
-        for (float phi = 0f; phi < Math.PI; phi += discretizationStepsPhi) {
-          float r = x*cos(phi) + y*sin(phi); 
+        for (int phi = 0; phi < phiDim; ++phi) {
+          float r = x*tabCos[phi] + y*tabSin[phi];
           int rInt = (int)(r / discretizationStepsR);
           rInt += (rDim - 1)/2;
-          int phiInt = (int)(phi / discretizationStepsPhi);
-          accumulator[((phiInt+1) * (rDim+2) + (rInt+1))] += 1;
+          accumulator[((phi+1) * (rDim+2) + (rInt+1))] += 1;
         }
       }
     }
