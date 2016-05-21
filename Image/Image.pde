@@ -24,7 +24,7 @@ void setup() {
 
 void draw() {
   PImage img = imgStatic;
-  boolean wantCam = false; //uniquely to switch wether we want camera mode or not
+  boolean wantCam = true; //uniquely to switch wether we want camera mode or not
   if (cam.available() == true && wantCam ) {
     cam.read();
     img = cam.get();
@@ -50,7 +50,7 @@ void draw() {
   //4. Sobel: 
   PImage result = sobel(convResult);
 
-  hough(result, 4);
+  hough(result, 6);
 }
 
 
