@@ -1,8 +1,9 @@
 import processing.video.*;
-import java.util.List;
-import java.util.Collections;
+import java.util.*;
 
-PImage imgStatic; 
+PImage imgStatic;
+PImage accumulatorResult;
+PImage sobelResult;
 Capture cam;
 static int threshold = 255; 
 HScrollbar thresholdBar1; // add a scrollbar on the bottom of the window
@@ -10,22 +11,29 @@ HScrollbar thresholdBar2; // upper scrollbar
 static float th1 = 0.5;
 static float th2 = 1.0;
 
+boolean wantCam = false; //uniquely to switch wether we want camera mode or not
+
+QuadGraph graph;
+
+
 void settings() {
-  size(800, 600);
+  size(2200, 600);
 }
 
 void setup() {
-  imgStatic = loadImage("board2.jpg"); 
-  thresholdBar1 = new HScrollbar(0, 580, 800, 20); 
-  thresholdBar2 = new HScrollbar(0, 555, 800, 20); 
-  camera_setup();
-  //noLoop(); // no interactive behaviour: draw() will be called only once.
+  imgStatic = loadImage("board4.jpg"); 
+  graph = new QuadGraph();
+  
+  if(wantCam){
+     camera_setup();
+  }else{
+    noLoop(); // no interactive behaviour: draw() will be called only once.
+  }  
 }
 
 void draw() {
   PImage img = imgStatic;
-  boolean wantCam = true; //uniquely to switch wether we want camera mode or not
-  if (cam.available() == true && wantCam ) {
+  if (wantCam && cam.available() == true) {
     cam.read();
     img = cam.get();
   }
@@ -49,8 +57,16 @@ void draw() {
   
   //4. Sobel: 
   PImage result = sobel(convResult);
+  sobelResult = result;
+  
+  //Hough
+  ArrayList<PVector> houghArray = hough(result, 4);
+  ArrayList<PVector> intersections = getIntersections(houghArray);
 
-  hough(result, 6);
+  //Quads
+  graph.build(houghArray, img.width, img.height);
+  image(accumulatorResult, 800, 0);
+  image(sobelResult, 1400, 0);
 }
 
 
@@ -90,6 +106,7 @@ PImage saturationFilter(PImage image) {
     }
   }
   return result;
+
 }
 
 /* ================== CAMERA SETUP ================== */
@@ -205,10 +222,10 @@ void displayAccumulator(int[] accumulator, int rDim, int phiDim) {
     houghImg.pixels[i] = color(min(255, accumulator[i]));
   }
   // You may want to resize the accumulator to make it easier to see:
-  houghImg.resize(400, 400);
+  houghImg.resize(600, 600);
 
   houghImg.updatePixels();
-  image(houghImg, 0, 0); // affiche l'image
+  accumulatorResult = houghImg;
 }
 
 void displayPlotLines(PImage edgeImg, ArrayList<Integer> candidates, int[] accumulator, int rDim, float discretizationStepsR, float discretizationStepsPhi) {
@@ -303,7 +320,7 @@ ArrayList<PVector> hough(PImage edgeImg, int nLines) {
   }
 
   //display hough image
-  //displayAccumulator(accumulator, rDim, phiDim);
+  displayAccumulator(accumulator, rDim, phiDim);
 
   //plot lines
   displayPlotLines(edgeImg, bestCandidates, accumulator, rDim, discretizationStepsR, discretizationStepsPhi);
