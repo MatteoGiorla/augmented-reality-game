@@ -43,14 +43,26 @@ static boolean cylinderKeyPressed = false;
 static int time;
 static final int timeThreshold = 1500; //à chaque 1500 ms, on ajoute une nouvelle bar sur la chart.
 
-TwoDThreeD twoDthreeD;
 static final Boolean tangible = true;
+
+ImageProcessing imgproc;
+
+PVector rot;
+
+
 
 void settings() {
   size(windowWidth, windowHeight, P3D);
 }
 
 void setup () {
+  imgproc = new ImageProcessing();
+  String[] args = {"Image processing window"};
+  PApplet.runSketch(args, imgproc);
+
+  rot = imgproc.getRotation();
+
+
   // création d'un cylindre (cylinder)
   noStroke();
   float angle;
@@ -81,8 +93,6 @@ void setup () {
 
   //initialization of default time.
   time = millis();
-  
-  twoDthreeD = new TwoDThreeD(windowWidth, windowHeight);
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -175,11 +185,8 @@ void draw() {
 }
 
 void rotationGestionTangible() {
-  ArrayList<PVector> array = new ArrayList<PVector>();
-  List<int[]> quads = graph.findCycles();
-  array.add(new PVector(quads.get(0)[0], quads.get(0)[1]));
-  rotateX(- (twoDthreeD.get3DRotations(graph.sortCorners(array))).x);
-  rotateZ(rzImmobile);
+  rotateX(-rot.x);
+  rotateZ(rot.y);
 }
 
 //fonction qui s'occupe de tourner le plateau sur l'axe des X et des Y en fonction de l'utilisation de la souris en mode "CLICK"

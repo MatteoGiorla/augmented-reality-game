@@ -9,7 +9,7 @@ class QuadGraph {
   List<int[]> cycles = new ArrayList<int[]>();
   int[][] graph;
 
-  void build(List<PVector> lines, int width, int height) {
+  List<int[]> build(List<PVector> lines, int width, int height) {
 
     int n = lines.size();
 
@@ -54,6 +54,8 @@ class QuadGraph {
         quad(c12.x, c12.y, c23.x, c23.y, c34.x, c34.y, c41.x, c41.y);
       }
     }
+    
+    return quads;
   }
 
   PVector intersection(PVector line1, PVector line2) {
