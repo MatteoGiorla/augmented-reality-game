@@ -5,6 +5,7 @@ PImage imgStatic;
 PImage accumulatorResult;
 PImage sobelResult;
 Capture cam;
+Movie mCam;
 static int threshold = 255; 
 HScrollbar thresholdBar1; // add a scrollbar on the bottom of the window
 HScrollbar thresholdBar2; // upper scrollbar
@@ -12,7 +13,7 @@ static float th1 = 0.5;
 static float th2 = 1.0;
 
 boolean wantCam = false; //uniquely to switch wether we want camera mode or not
-
+boolean wantMovie = true;
 QuadGraph graph;
 
 
@@ -26,7 +27,11 @@ void setup() {
   
   if(wantCam){
      camera_setup();
+  }else if(wantMovie){
+    mCam = new Movie(this, "testvideo.mp4");
+    mCam.loop();
   }else{
+    frameRate(30f);
     noLoop(); // no interactive behaviour: draw() will be called only once.
   }  
 }
@@ -36,6 +41,8 @@ void draw() {
   if (wantCam && cam.available() == true) {
     cam.read();
     img = cam.get();
+  }else if(wantMovie){
+    img = mCam;
   }
   image(img, 0, 0);
   //1. Thresholding:
@@ -70,6 +77,10 @@ void draw() {
 }
 
 
+/* ================== MOVIE ================== */
+  void movieEvent(Movie m){
+    m.read();
+  }
 /* ================== FILTERS ================== */
 
 PImage hueFilter(PImage image) {
