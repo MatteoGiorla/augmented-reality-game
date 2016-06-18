@@ -1,27 +1,34 @@
 import processing.video.*;
 import java.util.*;
 
-PImage imgStatic;
-PImage accumulatorResult;
-PImage sobelResult;
-Capture cam;
-Movie mCam;
-static int image_threshold = 255; 
-HScrollbar thresholdBar1; // add a scrollbar on the bottom of the window
-HScrollbar thresholdBar2; // upper scrollbar
-static float th1 = 0.5;
-static float th2 = 1.0;
-
-boolean wantCam = false; //uniquely to switch wether we want camera mode or not
-boolean wantMovie = false;
-QuadGraph graph;
-List<int[]> quadsForRot;
-TwoDThreeD twoDthreeD;
-
 class ImageProcessing {
-
-  void settings() {
-    size(640, 480);
+  
+  PImage imgStatic;
+  PImage accumulatorResult;
+  PImage sobelResult;
+  Capture cam;
+  Movie mCam;
+  static int image_threshold = 255; 
+  HScrollbar thresholdBar1; // add a scrollbar on the bottom of the window
+  HScrollbar thresholdBar2; // upper scrollbar
+  static float th1 = 0.5;
+  static float th2 = 1.0;
+  
+  QuadGraph graph;
+  List<int[]> quadsForRot;
+  TwoDThreeD twoDthreeD;
+  
+  boolean wantCam; //uniquely to switch wether we want camera mode or not
+  boolean wantMovie;
+  int imgWidth;
+  int imgHeight;
+  PGraphics imgGraphic;
+  
+  public ImageProcessing(boolean Cam, boolean Movie, int imgWidth, int imgHeight){
+    wantCam = Cam;
+    wantMovie = Movie;
+    this.imgWidth = imgWidth;
+    this.imgHeight = imgHeight;
   }
 
   void setup() {
@@ -38,6 +45,7 @@ class ImageProcessing {
       rotation = drawAugmentedImage(boardImg);
       noLoop(); // no interactive behaviour: draw() will be called only once.
     }
+    imgGraphic = createGraphics(imgWidth,imgHeight);
   }
 
   void draw() {
@@ -51,7 +59,16 @@ class ImageProcessing {
       img = imgStatic;
     }
     
-    image(img, 0, 0);
+    
+    pushMatrix();
+    //MAGIC NUMBER; MON AMOUUUUUUUUUUUR
+    translate(0, 0, depth-606);
+    imgGraphic.beginDraw();
+    imgGraphic.image(img, 0, 0);
+    imgGraphic.endDraw();
+    image(imgGraphic, 0, 0);
+    scrollBar.display();
+    popMatrix();
     //1. Thresholding:
     //Saturation
     PImage satuResult = saturationFilter(img);

@@ -27,7 +27,6 @@ HUD hud = new HUD(4, windowWidth, windowHeight);
 static final int scrollBarHeight = 10;
 static final int scrollBarWidth = 300;
 HScrollbar scrollBar = new HScrollbar(windowWidth/2, windowHeight - (hud.offset + scrollBarHeight/2), scrollBarWidth, scrollBarHeight);
-
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
 static ArrayList<PVector> arrayCyl = new ArrayList(); 
@@ -44,11 +43,7 @@ static int time;
 static final int timeThreshold = 1500; //à chaque 1500 ms, on ajoute une nouvelle bar sur la chart.
 
 static final Boolean tangible = true;
-
-ImageProcessing imgproc;
-
-PVector rot;
-
+ImageProcessing imgproc = new ImageProcessing(false, false, 640, 480);
 
 
 void settings() {
@@ -56,12 +51,6 @@ void settings() {
 }
 
 void setup () {
-  imgproc = new ImageProcessing();
-  String[] args = {"Image processing window"};
-  PApplet.runSketch(args, imgproc);
-
-  rot = imgproc.getRotation();
-
 
   // création d'un cylindre (cylinder)
   noStroke();
@@ -91,6 +80,9 @@ void setup () {
   //appelation du setup du HUD pour définir les différentes surfaces de dessin.
   hud.setup();
 
+  //appelation du setup du traitement de l'image externe.
+  imgproc.setup();
+
   //initialization of default time.
   time = millis();
 }
@@ -116,6 +108,10 @@ void draw() {
   hud.drawHUD(arrayCyl, mover, scrollBar);
 
 
+  //Image drawing
+  imgproc.draw();
+  PVector rotation = imgproc.getRotation();
+
   //putting light
   directionalLight(50, 100, 125, 0, 1, 0);
   ambientLight(102, 102, 102);
@@ -133,7 +129,7 @@ void draw() {
     }
     //pivoter le plateau.
     if (tangible) {
-      rotationGestionTangible();
+      rotationGestionTangible(rotation);
     } else {
       rotationGestionMouse();
     }
@@ -184,7 +180,7 @@ void draw() {
   }
 }
 
-void rotationGestionTangible() {
+void rotationGestionTangible(PVector rot) {
   rotateX(-rot.x);
   rotateZ(rot.y);
 }
