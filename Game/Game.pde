@@ -1,3 +1,6 @@
+import processing.video.*;
+
+
 static int windowHeight = 700;
 static int windowWidth = 1250;
 
@@ -27,6 +30,7 @@ HUD hud = new HUD(4, windowWidth, windowHeight);
 static final int scrollBarHeight = 10;
 static final int scrollBarWidth = 300;
 HScrollbar scrollBar = new HScrollbar(windowWidth/2, windowHeight - (hud.offset + scrollBarHeight/2), scrollBarWidth, scrollBarHeight);
+
 //variables relatives au mode SHIFT
 static boolean shiftKeyPressed = false;
 static ArrayList<PVector> arrayCyl = new ArrayList(); 
@@ -42,16 +46,20 @@ static boolean cylinderKeyPressed = false;
 static int time;
 static final int timeThreshold = 1500; //à chaque 1500 ms, on ajoute une nouvelle bar sur la chart.
 
-static final Boolean tangible = true;
-ImageProcessing imgproc = new ImageProcessing(false, false, 640, 480);
-
+//variables relatives à la caméra/film
+boolean wantCam = false;
+boolean wantMovie = true;
+Capture cam;
+Movie mCam;
+PImage imgStatic;
+boolean tangible = true;
+ImageProcessing imageProc = new ImageProcessing();
 
 void settings() {
   size(windowWidth, windowHeight, P3D);
 }
 
 void setup () {
-
   // création d'un cylindre (cylinder)
   noStroke();
   float angle;
@@ -80,11 +88,27 @@ void setup () {
   //appelation du setup du HUD pour définir les différentes surfaces de dessin.
   hud.setup();
 
-  //appelation du setup du traitement de l'image externe.
-  imgproc.setup();
-
   //initialization of default time.
-  time = millis();
+  time = millis(); 
+
+  //setup de caméra/movie pour le coin upper/left
+
+
+  /*if (wantCam) {
+   camera_setup();
+   } else*/  if (wantMovie) {
+    mCam = new Movie(this, "testvideo.mp4");
+    mCam.loop();
+  } else {
+    imgStatic = loadImage("board1.jpg");
+    noLoop(); // no interactive behaviour: draw() will be called only once.
+  }
+}
+
+
+//get everyframe of the movie man.
+void movieEvent(Movie m) {
+  m.read();
 }
 
 //relie les points du cercle de la base et du sommet du cylindre.
@@ -102,21 +126,36 @@ void baseCylinderConstr(float[] vertDotsX, float[] vertDotsY, float cylHeight) {
 
 void draw() {
 
-
+  PImage img;
+  if (wantCam && cam.available() == true) {
+    cam.read();
+    img = cam.get();
+  } else if (wantMovie) {
+    img = mCam;
+    loadPixels();
+  } else {
+    img = imgStatic;
+  }
   background(235);
   //HUD DRAWING
   hud.drawHUD(arrayCyl, mover, scrollBar);
 
-
-  //Image drawing
-  imgproc.draw();
-  PVector rotation = imgproc.getRotation();
+  pushMatrix();
+  translate(-810, -450, depth-1400);
+  println("game: " + img);
+  image(img,0,0);
+  mCam.read();
+  PImage p = createImage(mCam.width, mCam.height, RGB);
+  p.copy(mCam, 0, 0, mCam.width, mCam.height, 0, 0, mCam.width, mCam.height);
+  img = p;
+  popMatrix();
 
   //putting light
   directionalLight(50, 100, 125, 0, 1, 0);
   ambientLight(102, 102, 102);
 
   if (!shiftKeyPressed) {
+
     //on fixe la caméra en face du plateau puis on déplace le plateau correctement au centre de la fenêtre.
     camera(width/2, height/2, depth, width/2, height/2, 0, 0, 1, 0);
     translate(width/2, height/2, 0);
@@ -129,9 +168,13 @@ void draw() {
     }
     //pivoter le plateau.
     if (tangible) {
-      rotationGestionTangible(rotation);
+      //imageprocessing
+      PVector rot;
+      println("before img proc" + img);
+      rot = imageProc.processingImage(img, 640, 480);
+      rotationGestionTangible(rot);
     } else {
-      rotationGestionMouse();
+      rotationGestion();
     }
 
     //box
@@ -180,14 +223,9 @@ void draw() {
   }
 }
 
-void rotationGestionTangible(PVector rot) {
-  rotateX(-rot.x);
-  rotateZ(rot.y);
-}
-
 //fonction qui s'occupe de tourner le plateau sur l'axe des X et des Y en fonction de l'utilisation de la souris en mode "CLICK"
 //puis de sauvegarder cette inclinaison lorsqu'il n'y a pas de clicks
-void rotationGestionMouse() {
+void rotationGestion() {
   if (mousePressed && mouseY < (windowHeight - 2*(hud.offset+scrollBarHeight))) {
     float rz = map(mouseX - constrain(mouseXSaved, 0, width) + width/2, 0, width, (-PI/3), PI/3)*speed;
     float rx = map(mouseY - constrain(mouseYSaved, 0, height) + height/2, 0, height, (-PI/3), PI/3)*speed;
@@ -203,6 +241,20 @@ void rotationGestionMouse() {
     rotateX(-rxImmobile);
     rotateZ(rzImmobile);
   }
+}
+
+void rotationGestionTangible(PVector rot) {
+    if(!(rot.x == 0 && rot.y == 0)) {
+      angleX = rot.x;
+      angleZ = rot.y;
+      rxImmobile = angleX;
+      rzImmobile = angleZ;
+      rotateX(-angleX);
+      rotateZ(angleZ);
+    } else {
+      rotateX(-rxImmobile);
+      rotateZ(rzImmobile);
+    }
 }
 
 //fonction qui affiche le plateau

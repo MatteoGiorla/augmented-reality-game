@@ -10,14 +10,12 @@ class QuadGraph {
   int[][] graph;
 
   List<int[]> build(List<PVector> lines, int width, int height) {
-
     int n = lines.size();
 
     // The maximum possible number of edges is n * (n - 1)/2
     graph = new int[n * (n - 1)/2][2];
 
     int idx =0;
-
     for (int i = 0; i < lines.size(); i++) {
       for (int j = i + 1; j < lines.size(); j++) {
         if (intersect(lines.get(i), lines.get(j), width, height)) {
@@ -32,11 +30,10 @@ class QuadGraph {
         }
       }
     }
-
     List<int[]> quads = findCycles();
 
     for (int[] quad : quads) {
-      PVector l1 = lines.get(quad[0]); 
+      PVector l1 = lines.get(quad[0]);
       PVector l2 = lines.get(quad[1]); 
       PVector l3 = lines.get(quad[2]); 
       PVector l4 = lines.get(quad[3]);

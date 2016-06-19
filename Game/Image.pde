@@ -1,74 +1,30 @@
 import processing.video.*;
 import java.util.*;
 
-class ImageProcessing {
-  
+
+public class ImageProcessing {
+
   PImage imgStatic;
   PImage accumulatorResult;
   PImage sobelResult;
   Capture cam;
-  Movie mCam;
-  static int image_threshold = 255; 
   HScrollbar thresholdBar1; // add a scrollbar on the bottom of the window
   HScrollbar thresholdBar2; // upper scrollbar
-  static float th1 = 0.5;
-  static float th2 = 1.0;
+  float th1 = 0.5;
+  float th2 = 1.0;
   
-  QuadGraph graph;
+  QuadGraph graph = new QuadGraph();
   List<int[]> quadsForRot;
   TwoDThreeD twoDthreeD;
-  
-  boolean wantCam; //uniquely to switch wether we want camera mode or not
-  boolean wantMovie;
-  int imgWidth;
-  int imgHeight;
-  PGraphics imgGraphic;
-  
-  public ImageProcessing(boolean Cam, boolean Movie, int imgWidth, int imgHeight){
-    wantCam = Cam;
-    wantMovie = Movie;
-    this.imgWidth = imgWidth;
-    this.imgHeight = imgHeight;
-  }
 
-  void setup() {
-    graph = new QuadGraph();
-    twoDthreeD = new TwoDThreeD(width, height);
+  //constructeur professionel
+  ImageProcessing() {
+  };
 
-    if (wantCam) {
-      camera_setup();
-    } else if (wantMovie) {
-      mCam = new Movie(this, "testvideo.mp4");
-      mCam.loop();
-    } else {
-      imgStatic = loadImage("board1.jpg"); 
-      rotation = drawAugmentedImage(boardImg);
-      noLoop(); // no interactive behaviour: draw() will be called only once.
-    }
-    imgGraphic = createGraphics(imgWidth,imgHeight);
-  }
+  PVector processingImage(PImage img, int img_width, int img_height) {
+    println(img);
+    twoDthreeD = new TwoDThreeD(img_width, img_height);
 
-  void draw() {
-    PImage img;
-    if (wantCam && cam.available() == true) {
-      cam.read();
-      img = cam.get();
-    } else if (wantMovie) {
-      img = mCam;
-    } else {
-      img = imgStatic;
-    }
-    
-    
-    pushMatrix();
-    //MAGIC NUMBER; MON AMOUUUUUUUUUUUR
-    translate(0, 0, depth-606);
-    imgGraphic.beginDraw();
-    imgGraphic.image(img, 0, 0);
-    imgGraphic.endDraw();
-    image(imgGraphic, 0, 0);
-    scrollBar.display();
-    popMatrix();
     //1. Thresholding:
     //Saturation
     PImage satuResult = saturationFilter(img);
@@ -95,17 +51,11 @@ class ImageProcessing {
     ArrayList<PVector> intersections = getIntersections(houghArray);
 
     //Quads
-    quadsForRot = graph.build(houghArray, img.width, img.height);
-    //image(accumulatorResult, 800, 0);
-    //image(sobelResult, 1400, 0);
-    
+    quadsForRot = graph.build(houghArray, img_width, img_height);
+    return getRotation(quadsForRot);
   }
 
 
-  /* ================== MOVIE ================== */
-  void movieEvent(Movie m) {
-    m.read();
-  }
   /* ================== FILTERS ================== */
 
   PImage hueFilter(PImage image) {
@@ -155,8 +105,8 @@ class ImageProcessing {
       for (int i = 0; i < cameras.length; i++) {
         println(cameras[i]);
       }
-      cam = new Capture(this, cameras[0]);
-      cam.start();
+      // cam = new Capture(this, cameras[0]);
+      //cam.start();
     }
   }
   /* ================== CONVOLUTE ================== */
@@ -431,18 +381,24 @@ class ImageProcessing {
     }
     return intersections;
   }
-  
-  PVector getRotation() { //<>//
+
+  PVector getRotation(List<int[]> quadsForRot) {
+    if(quadsForRot.size() != 0){
     PVector vector = new PVector(quadsForRot.get(0)[0], quadsForRot.get(0)[1]);
-    PVector vector1 = new PVector(quadsForRot.get(1)[0], quadsForRot.get(1)[1]);
-    PVector vector2 = new PVector(quadsForRot.get(2)[0], quadsForRot.get(2)[1]);
-    PVector vector3 = new PVector(quadsForRot.get(3)[0], quadsForRot.get(3)[1]);
+    PVector vector1 = new PVector(quadsForRot.get(0)[1], quadsForRot.get(0)[2]);
+    PVector vector2 = new PVector(quadsForRot.get(0)[2], quadsForRot.get(0)[3]);
+    PVector vector3 = new PVector(quadsForRot.get(0)[3], quadsForRot.get(0)[0]);
 
     List<PVector> list = new ArrayList<PVector>();
     list.add(vector);
     list.add(vector1);
     list.add(vector2);
     list.add(vector3);
-    return twoDthreeD.get3DRotations(list);
-  }  
+    
+    return twoDthreeD.get3DRotations(graph.sortCorners(list));
+    }
+    else{
+      return new PVector(0, 0);
+    }
+  }
 }

@@ -1,6 +1,6 @@
 //enum servant à représenter les directions.
 enum direction {
-    UP, 
+  UP, 
     DOWN, 
     RIGHT, 
     LEFT,
