@@ -142,7 +142,6 @@ void draw() {
 
   pushMatrix();
   translate(-810, -450, depth-1400);
-  println("game: " + img);
   image(img,0,0);
   mCam.read();
   PImage p = createImage(mCam.width, mCam.height, RGB);
@@ -170,7 +169,6 @@ void draw() {
     if (tangible) {
       //imageprocessing
       PVector rot;
-      println("before img proc" + img);
       rot = imageProc.processingImage(img, 640, 480);
       rotationGestionTangible(rot);
     } else {
@@ -245,8 +243,10 @@ void rotationGestion() {
 
 void rotationGestionTangible(PVector rot) {
     if(!(rot.x == 0 && rot.y == 0)) {
-      angleX = rot.x;
+      angleX = rot.x - PI/2;
       angleZ = rot.y;
+      angleX = constrain(angleX, -PI/3, PI/3);
+      angleZ = constrain(angleZ, -PI/3, PI/3);
       rxImmobile = angleX;
       rzImmobile = angleZ;
       rotateX(-angleX);

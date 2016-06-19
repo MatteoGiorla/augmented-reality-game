@@ -12,7 +12,7 @@ public class ImageProcessing {
   HScrollbar thresholdBar2; // upper scrollbar
   float th1 = 0.5;
   float th2 = 1.0;
-  
+
   QuadGraph graph = new QuadGraph();
   List<int[]> quadsForRot;
   TwoDThreeD twoDthreeD;
@@ -22,7 +22,6 @@ public class ImageProcessing {
   };
 
   PVector processingImage(PImage img, int img_width, int img_height) {
-    println(img);
     twoDthreeD = new TwoDThreeD(img_width, img_height);
 
     //1. Thresholding:
@@ -383,21 +382,23 @@ public class ImageProcessing {
   }
 
   PVector getRotation(List<int[]> quadsForRot) {
-    if(quadsForRot.size() != 0){
-    PVector vector = new PVector(quadsForRot.get(0)[0], quadsForRot.get(0)[1]);
-    PVector vector1 = new PVector(quadsForRot.get(0)[1], quadsForRot.get(0)[2]);
-    PVector vector2 = new PVector(quadsForRot.get(0)[2], quadsForRot.get(0)[3]);
-    PVector vector3 = new PVector(quadsForRot.get(0)[3], quadsForRot.get(0)[0]);
+    if (quadsForRot.size() != 0) {
+      PVector vector = new PVector(quadsForRot.get(0)[0], quadsForRot.get(0)[1]);
+      PVector vector1 = new PVector(quadsForRot.get(0)[1], quadsForRot.get(0)[2]);
+      PVector vector2 = new PVector(quadsForRot.get(0)[2], quadsForRot.get(0)[3]);
+      PVector vector3 = new PVector(quadsForRot.get(0)[3], quadsForRot.get(0)[0]);
 
-    List<PVector> list = new ArrayList<PVector>();
-    list.add(vector);
-    list.add(vector1);
-    list.add(vector2);
-    list.add(vector3);
-    
-    return twoDthreeD.get3DRotations(graph.sortCorners(list));
-    }
-    else{
+      List<PVector> list = new ArrayList<PVector>();
+      list.add(graph.intersection(vector, vector1));
+      list.add(graph.intersection(vector1, vector2));
+      list.add(graph.intersection(vector2, vector3));
+      list.add(graph.intersection(vector3, vector1));
+  
+      //println("ASDFA : " + PVector.mult(twoDthreeD.get3DRotations(graph.sortCorners(list)), 180/PI));
+      //println("sdafdsfa" + twoDthreeD.get3DRotations(graph.sortCorners(list)));
+      //return PVector.mult(twoDthreeD.get3DRotations(graph.sortCorners(list)), 180/PI);
+      return twoDthreeD.get3DRotations(graph.sortCorners(list));
+    } else {
       return new PVector(0, 0);
     }
   }
