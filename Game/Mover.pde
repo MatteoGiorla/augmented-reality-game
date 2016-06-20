@@ -8,7 +8,7 @@ enum direction {
 
 //Constantes du programe.
 final static  float ballRadius = 50;
-final static float gravityConstant = 0.81; //une trop grand force gravitationnelle n'est pas super non plus.
+final static float gravityConstant = 1.81; //une trop grand force gravitationnelle n'est pas super non plus.
 final static float mu = 0.2; //ceci représente le coefficient de frottement du chêne savonné. Parce qu'à la fin du projet je veux que notre plaque soit du bois de chêne savonné.
 final static float normalForce = 1;
 final static float BLACK = 0;

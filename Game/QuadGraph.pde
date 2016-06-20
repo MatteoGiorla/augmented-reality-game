@@ -9,7 +9,8 @@ class QuadGraph {
   List<int[]> cycles = new ArrayList<int[]>();
   int[][] graph;
 
-  List<int[]> build(List<PVector> lines, int width, int height) {
+  List<int[]> build(List<PVector> lines, List<PVector> intersections, int width, int height) {
+
     int n = lines.size();
 
     // The maximum possible number of edges is n * (n - 1)/2
@@ -31,6 +32,7 @@ class QuadGraph {
       }
     }
     List<int[]> quads = findCycles();
+    List<PVector> list = new ArrayList<PVector>(4);
 
     for (int[] quad : quads) {
       PVector l1 = lines.get(quad[0]);
@@ -44,15 +46,29 @@ class QuadGraph {
       PVector c23 = intersection(l2, l3); 
       PVector c34 = intersection(l3, l4); 
       PVector c41 = intersection(l4, l1);
-      if (isConvex(c12, c23, c34, c41) && validArea(c12, c23, c34, c41, 1000000f, 10000f) && nonFlatQuad(c12, c23, c34, c41)) {
+      println("quad : " + quad[0]);
+      list.add(c12);
+      list.add(c23);
+      list.add(c34);
+      list.add(c41);
+
+      sortCorners(list);
+
+      if (isConvex(c12, c23, c34, c41) && validArea(c12, c23, c34, c41, 150000f, 15000f) && nonFlatQuad(c12, c23, c34, c41)) {
         // Choose a random, semi-transparent colour 
         Random random = new Random(); 
         fill(color(min(255, random.nextInt(300)), min(255, random.nextInt(300)), min(255, random.nextInt(300)), 50));
         quad(c12.x, c12.y, c23.x, c23.y, c34.x, c34.y, c41.x, c41.y);
       }
     }
-    
-    return quads;
+    if (quads.size() != 0 ) {
+      int[] intList = {(int)list.get(0).x, (int)list.get(0).y, (int)list.get(1).x, (int)list.get(1).y, (int)list.get(2).x, (int)list.get(2).y, (int)list.get(3).x, (int)list.get(3).y};
+      List<int[]> toRet = new ArrayList<int[]>();
+      toRet.add(intList);
+      return toRet;
+    } else {
+      return new ArrayList<int[]>();
+    }
   }
 
   PVector intersection(PVector line1, PVector line2) {
@@ -330,13 +346,13 @@ class QuadGraph {
 
     // 2 - Sort by upper left most corner
     PVector origin = new PVector(0, 0);
-    float distToOrigin = 1000;
+    float distance = 1000;
 
     for (PVector p : quad) {
-      if (p.dist(origin) < distToOrigin) distToOrigin = p.dist(origin);
+      if (p.dist(origin) < distance) distance = p.dist(origin);
     }
 
-    while (quad.get(0).dist(origin) != distToOrigin)
+    while (quad.get(0).dist(origin) != distance)
       Collections.rotate(quad, 1);
 
 

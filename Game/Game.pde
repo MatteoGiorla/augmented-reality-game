@@ -131,8 +131,8 @@ void draw() {
     cam.read();
     img = cam.get();
   } else if (wantMovie) {
-    img = mCam;
-    loadPixels();
+    img = mCam.get();
+    //loadPixels();
   } else {
     img = imgStatic;
   }
@@ -140,13 +140,16 @@ void draw() {
   //HUD DRAWING
   hud.drawHUD(arrayCyl, mover, scrollBar);
 
-  pushMatrix();
-  translate(-810, -450, depth-1400);
-  image(img,0,0);
-  mCam.read();
+
+
+  PVector rot = imageProc.processingImage(img, 640, 480);
   PImage p = createImage(mCam.width, mCam.height, RGB);
   p.copy(mCam, 0, 0, mCam.width, mCam.height, 0, 0, mCam.width, mCam.height);
   img = p;
+  
+  pushMatrix();
+  translate(-810, -450, depth-1400);
+  image(img, 0, 0);
   popMatrix();
 
   //putting light
@@ -168,8 +171,6 @@ void draw() {
     //pivoter le plateau.
     if (tangible) {
       //imageprocessing
-      PVector rot;
-      rot = imageProc.processingImage(img, 640, 480);
       rotationGestionTangible(rot);
     } else {
       rotationGestion();
@@ -242,19 +243,21 @@ void rotationGestion() {
 }
 
 void rotationGestionTangible(PVector rot) {
-    if(!(rot.x == 0 && rot.y == 0)) {
-      angleX = rot.x - PI/2;
-      angleZ = rot.y;
-      angleX = constrain(angleX, -PI/3, PI/3);
-      angleZ = constrain(angleZ, -PI/3, PI/3);
-      rxImmobile = angleX;
-      rzImmobile = angleZ;
-      rotateX(-angleX);
-      rotateZ(angleZ);
-    } else {
-      rotateX(-rxImmobile);
-      rotateZ(rzImmobile);
-    }
+  if (!(rot.x == 0 && rot.y == 0)) {
+    println("rx : " + rot.x);
+    println("rz : " + rot.y);
+    angleX = -rot.x;
+    angleZ = rot.y;
+    angleX = constrain(angleX, -PI/3, PI/3);
+    angleZ = constrain(angleZ, -PI/3, PI/3);
+    rxImmobile = angleX;
+    rzImmobile = angleZ;
+    rotateX(-angleX);
+    rotateZ(angleZ);
+  } else {
+    rotateX(-rxImmobile);
+    rotateZ(rzImmobile);
+  }
 }
 
 //fonction qui affiche le plateau

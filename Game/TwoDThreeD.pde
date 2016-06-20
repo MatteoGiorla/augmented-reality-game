@@ -57,6 +57,11 @@ class TwoDThreeD {
       {firstColumn[1], secondColumn[1], thirdColumn[1]}, 
       {firstColumn[2], secondColumn[2], thirdColumn[2]}
     };
+    
+    println("rx g3r : " + rotationFromMatrix(rotationMatrix).x);
+    println("ry g3r: " + rotationFromMatrix(rotationMatrix).y);
+    println("rz g3r: " + rotationFromMatrix(rotationMatrix).z);
+
 
     // 3 - Computes and returns Euler angles (rx, ry, rz) from this matrix
     return rotationFromMatrix(rotationMatrix);
