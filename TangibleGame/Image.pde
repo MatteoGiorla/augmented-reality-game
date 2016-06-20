@@ -229,7 +229,7 @@ public class ImageProcessing {
         int y3 = edgeImg.width;
         int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
         // Finally, plot the lines
-        stroke(204, 102, 0);
+        /*stroke(204, 102, 0);
         if (y0 > 0) {
           if (x1 > 0)
             line(x0, y0, x1, y1);
@@ -245,7 +245,7 @@ public class ImageProcessing {
               line(x1, y1, x3, y3);
           } else
             line(x2, y2, x3, y3);
-        }
+        }*/
       }
     }
   }
@@ -374,8 +374,8 @@ public class ImageProcessing {
         intersections.add(new PVector(x, y));
 
         // draw the intersection 
-        fill(255, 128, 0); 
-        ellipse(x, y, 10, 10);
+        //fill(255, 128, 0); 
+        //ellipse(x, y, 10, 10);
       }
     }
     return intersections;
@@ -383,7 +383,6 @@ public class ImageProcessing {
 
   PVector getRotation(List<int[]> quadsForRot) {
     if (quadsForRot.size() != 0) {
-      println("quadsforrot in getRot " + quadsForRot.get(0)[0]);
       PVector vector = new PVector(quadsForRot.get(0)[0], quadsForRot.get(0)[1]);
       PVector vector1 = new PVector(quadsForRot.get(0)[2], quadsForRot.get(0)[3]);
       PVector vector2 = new PVector(quadsForRot.get(0)[4], quadsForRot.get(0)[5]);
@@ -394,9 +393,6 @@ public class ImageProcessing {
       list.add(vector1);
       list.add(vector2);
       list.add(vector3);
-
-      println("list : " + list);
-      println("sortedCorners : " + graph.sortCorners(list));
 
       return twoDthreeD.get3DRotations(list);
     } else {

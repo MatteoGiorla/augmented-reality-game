@@ -8,7 +8,7 @@ enum direction {
 
 //Constantes du programe.
 final static  float ballRadius = 50;
-final static float gravityConstant = 1.81; //une trop grand force gravitationnelle n'est pas super non plus.
+final static float gravityConstant = 3.81; //une trop grand force gravitationnelle n'est pas super non plus.
 final static float mu = 0.2; //ceci représente le coefficient de frottement du chêne savonné. Parce qu'à la fin du projet je veux que notre plaque soit du bois de chêne savonné.
 final static float normalForce = 1;
 final static float BLACK = 0;
@@ -32,7 +32,7 @@ class Mover {
   Mover() {
     gravityForce = new PVector(0, 0, 0);
     velocity = new PVector(0, 0, 0);
-    location = new PVector(0, -(ballRadius + Game.boxThick/2), 0); // position de base pour que la sphère soit sur le plateau.
+    location = new PVector(0, -(ballRadius + TangibleGame.boxThick/2), 0); // position de base pour que la sphère soit sur le plateau.
     friction = new PVector(0, 0, 0);
     frictionMagnitude = normalForce * mu;
     veloThreshold = new PVector(threshold, 0.0, threshold);

@@ -146,12 +146,14 @@ void draw() {
   PImage p = createImage(mCam.width, mCam.height, RGB);
   p.copy(mCam, 0, 0, mCam.width, mCam.height, 0, 0, mCam.width, mCam.height);
   img = p;
-  
-  pushMatrix();
-  translate(-810, -450, depth-1400);
-  image(img, 0, 0);
-  popMatrix();
 
+  if (!shiftKeyPressed) {
+
+    pushMatrix();
+    translate(-810, -450, depth-1400);
+    image(img, 0, 0);
+    popMatrix();
+  }
   //putting light
   directionalLight(50, 100, 125, 0, 1, 0);
   ambientLight(102, 102, 102);
@@ -244,12 +246,18 @@ void rotationGestion() {
 
 void rotationGestionTangible(PVector rot) {
   if (!(rot.x == 0 && rot.y == 0)) {
-    println("rx : " + rot.x);
-    println("rz : " + rot.y);
-    angleX = -rot.x;
-    angleZ = rot.y;
-    angleX = constrain(angleX, -PI/3, PI/3);
-    angleZ = constrain(angleZ, -PI/3, PI/3);
+    angleX = constrain(-rot.x, -PI/3, PI/3);
+    angleZ = constrain(rot.y, -PI/3, PI/3);
+    if (Math.abs(angleX - rxImmobile) > PI/6) {
+      angleX = angleX/6;
+    } else {
+      angleX = angleX/2;
+    }
+    if (Math.abs(angleZ - rzImmobile) > PI/6) {
+      angleZ = angleZ/6;
+    } else {
+      angleZ = angleZ/2;
+    }
     rxImmobile = angleX;
     rzImmobile = angleZ;
     rotateX(-angleX);
